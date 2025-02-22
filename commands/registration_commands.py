@@ -9,8 +9,9 @@ from aiogram.utils import markdown
 from finance_tg_bot import messages
 from finance_tg_bot.config import API_BASE_URL
 from finance_tg_bot.states import RegisterState
+from finance_tg_bot.db import get_db, save_token, get_token
 
-user_tokens = {}
+# user_tokens = {}
 router = Router()
 
 
@@ -22,7 +23,13 @@ async def set_token_cmd(message: Message):
         return
 
     token = args[1].strip()
-    user_tokens[message.from_user.id] = token
+    # user_tokens[message.from_user.id] = token
+
+    # Используем контекстный менеджер для работы с базой данных
+    with get_db() as db:  # Контекстный менеджер для работы с сессией
+        # Сохраняем токен в базе данных
+        save_token(db, message.from_user.id, token)
+
     await message.answer(messages.TOKEN_SAVED)
 
 
@@ -51,7 +58,13 @@ async def register_password(message: Message, state: FSMContext):
             data = await response.json()
             if response.status == 201:
                 token = data.get("token")
-                user_tokens[message.from_user.id] = token
+                # user_tokens[message.from_user.id] = token
+
+                # Используем контекстный менеджер для работы с базой данных
+                with get_db() as db:  # Контекстный менеджер для работы с сессией
+                    # Сохраняем токен в базе данных
+                    save_token(db, message.from_user.id, token)
+
                 await message.answer(
                     markdown.text(
                         messages.REGISTER_SUCCESS.format(token=token),
