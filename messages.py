@@ -1,11 +1,12 @@
 START_MESSAGE = """Привет! Я бот для ведения личной бухгалтерии.
-Для начала работы введи свой токен через команду /token или зарергистрируйтесь через команду /register"""
+Для начала работы введи свой токен через команду /token или зарегистрируйтесь через команду /register"""
 
 HELP_MESSAGE = """help message"""
 
-TOKEN_HOW_TO = """Введите ваш токен после команды /token.
+TOKEN_ADD_HOW_TO = """Чтобы добавить токен, используйте команду /token с аргументом.
 Например: /token 2uj3tg14fwq124we3fcf23"""
 TOKEN_SAVED = "Токен успешно сохранен"
+TOKEN_ANSWER = "Ваш токен: <code>{token}</code>"
 
 ENTER_USERNAME = "Введите username"
 ENTER_PASSWORD = "Введите password"

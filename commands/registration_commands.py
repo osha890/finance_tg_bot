@@ -4,12 +4,13 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.utils import markdown
+from aiogram.enums import ParseMode
 
 from finance_tg_bot import messages
 from finance_tg_bot.config import API_BASE_URL
 from finance_tg_bot.states import RegisterState
 from finance_tg_bot.database.db_settings import get_db
-from finance_tg_bot.database.crud import save_token
+from finance_tg_bot.database.crud import save_token, get_token
 
 router = Router()
 
@@ -17,16 +18,27 @@ router = Router()
 @router.message(Command("token"))
 async def set_token_cmd(message: Message):
     args = message.text.split(maxsplit=1)
+    user_id = message.from_user.id
     if len(args) < 2:
-        await message.answer(messages.TOKEN_HOW_TO)
-        return
+        with get_db() as db:
+            token = get_token(db, user_id).token
+        if token:
+            text = markdown.text(
+                messages.TOKEN_ANSWER.format(token=token),
+                '\n',
+                messages.TOKEN_ADD_HOW_TO,
+                sep='\n'
+            )
+        else:
+            text = messages.TOKEN_ADD_HOW_TO
+        await message.answer(text, parse_mode=ParseMode.HTML)
+    else:
+        token = args[1].strip()
 
-    token = args[1].strip()
+        with get_db() as db:
+            save_token(db, user_id, token)
 
-    with get_db() as db:
-        save_token(db, message.from_user.id, token)
-
-    await message.answer(messages.TOKEN_SAVED)
+        await message.answer(messages.TOKEN_SAVED)
 
 
 @router.message(Command("register"))
