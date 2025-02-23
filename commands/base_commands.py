@@ -1,20 +1,21 @@
 from aiogram import Router
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.utils import markdown
 
 from finance_tg_bot import messages
-from finance_tg_bot.states import UserState
 
 router = Router()
 
 
 @router.message(CommandStart())
-async def start_cmd(message: Message):
-    await message.answer(messages.START_MESSAGE)
-
-
-@router.message(Command("setstate"))
-async def start_cmd(message: Message):
-    UserState.user_id = message.from_user.id
-    await message.answer(messages.START_MESSAGE)
-
+async def start_cmd(message: Message, state: FSMContext):
+    await message.answer(
+        markdown.text(
+            messages.START_MESSAGE,
+            '\n',
+            messages.BEGIN_MESSAGE,
+            sep='\n'
+        )
+    )

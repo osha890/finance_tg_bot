@@ -16,12 +16,14 @@ router = Router()
 
 
 @router.message(Command("token"))
-async def set_token_cmd(message: Message,  state: FSMContext):
+async def token_cmd(message: Message, state: FSMContext):
     args = message.text.split(maxsplit=1)
     user_id = message.from_user.id
     if len(args) < 2:
-        with get_db() as db:
-            token = get_token(db, user_id).token
+        # with get_db() as db:
+        #     token = get_token(db, user_id).token
+        data = await state.get_data()
+        token = data.get('token')
         if token:
             text = markdown.text(
                 messages.TOKEN_ANSWER.format(token=token),
@@ -30,7 +32,12 @@ async def set_token_cmd(message: Message,  state: FSMContext):
                 sep='\n'
             )
         else:
-            text = messages.TOKEN_ADD_HOW_TO
+            text = markdown.text(
+                messages.NO_TOKEN,
+                '\n',
+                messages.TOKEN_ADD_HOW_TO,
+                sep='\n'
+            )
         await message.answer(text, parse_mode=ParseMode.HTML)
     else:
         token = args[1].strip()
@@ -89,3 +96,26 @@ async def register_password(message: Message, state: FSMContext):
 
     await state.clear()
     await state.update_data(token=token)
+
+
+@router.message(Command("set_state"))
+async def set_state_cmd(message: Message, state: FSMContext):
+    user_id = message.from_user.id
+    with get_db() as db:
+        token = get_token(db, user_id)
+    if token is not None:
+        token = token.token
+        await state.update_data(token=token)
+        text = markdown.text(
+            messages.TOKEN_SAVED,
+            messages.TOKEN_ANSWER.format(token=token),
+            sep='\n'
+        )
+    else:
+        text = markdown.text(
+            messages.NO_TOKEN,
+            '\n',
+            messages.TOKEN_ADD_HOW_TO,
+            sep='\n'
+        )
+    await message.answer(text, parse_mode=ParseMode.HTML)
