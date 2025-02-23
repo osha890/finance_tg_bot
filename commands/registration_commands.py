@@ -16,7 +16,7 @@ router = Router()
 
 
 @router.message(Command("token"))
-async def set_token_cmd(message: Message):
+async def set_token_cmd(message: Message,  state: FSMContext):
     args = message.text.split(maxsplit=1)
     user_id = message.from_user.id
     if len(args) < 2:
@@ -37,6 +37,8 @@ async def set_token_cmd(message: Message):
 
         with get_db() as db:
             save_token(db, user_id, token)
+
+        await state.update_data(token=token)
 
         await message.answer(messages.TOKEN_SAVED)
 
@@ -59,6 +61,7 @@ async def register_password(message: Message, state: FSMContext):
     user_data = await state.get_data()
     username = user_data["username"]
     password = message.text.strip()
+    token = None
 
     async with aiohttp.ClientSession() as session:
         async with session.post(f"{API_BASE_URL}/register/",
@@ -85,3 +88,4 @@ async def register_password(message: Message, state: FSMContext):
                 await message.answer(messages.REGISTER_ERROR.format(error=error_message))
 
     await state.clear()
+    await state.update_data(token=token)
