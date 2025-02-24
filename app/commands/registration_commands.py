@@ -13,7 +13,7 @@ from finance_tg_bot.database.db_settings import get_db
 from finance_tg_bot.database.crud import save_token, get_token
 
 from ..states import RegisterState
-from .utils import handle_api_errors
+from finance_tg_bot.app.utils import handle_api_errors
 
 router = Router()
 

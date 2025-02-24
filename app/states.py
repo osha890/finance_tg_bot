@@ -7,6 +7,9 @@ class RegisterState(StatesGroup):
 class TokenState(StatesGroup):
     token_key = State()
 
-class AccountState(StatesGroup):
+class CreateAccountState(StatesGroup):
     account_name = State()
     account_balance = State()
+
+class DeleteAccountState(StatesGroup):
+    account_id = State()
