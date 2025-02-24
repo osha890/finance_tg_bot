@@ -15,5 +15,10 @@ REGISTER_SUCCESS = "Регистрация завершена!"
 REGISTER_ERROR = "Ошибка регистрации: {error}"
 USER_ALREADY_EXISTS = "Пользователь с таким именем уже существует"
 
+NO_ACCOUNTS = "У вас нет счетов"
+ENTER_ACCOUNT_NAME = "Введите название счёта"
+ENTER_ACCOUNT_BALANCE = "Введите баланс счёта"
+ACCOUNT_ADDED = "Счет успешно добавлен"
+WRONG_ACCOUNT_BALANCE = "Неверный формат баланса"
 
 API_CONNECTION_ERROR = "Отсутствует соединение с API. Попробуйте позже"

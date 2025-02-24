@@ -13,6 +13,7 @@ from finance_tg_bot.database.db_settings import get_db
 from finance_tg_bot.database.crud import save_token, get_token
 
 from ..states import RegisterState
+from .utils import handle_api_errors
 
 router = Router()
 
@@ -62,41 +63,36 @@ async def register_username(message: Message, state: FSMContext):
 
 
 @router.message(RegisterState.password)
+@handle_api_errors()
 async def register_password(message: Message, state: FSMContext):
     user_data = await state.get_data()
     username = user_data["username"]
     password = message.text.strip()
 
     async with aiohttp.ClientSession() as session:
-        try:
-            async with session.post(f"{API_BASE_URL}/register/",
-                                    json={"username": username, "password": password}) as response:
-                data = await response.json()
-                if response.status == 201:
-                    token_key = data.get("token")
+        async with session.post(f"{API_BASE_URL}/register/",
+                                json={"username": username, "password": password}) as response:
+            data = await response.json()
+            if response.status == 201:
+                token_key = data.get("token")
 
-                    with get_db() as db:
-                        save_token(db, message.from_user.id, token_key)
+                with get_db() as db:
+                    save_token(db, message.from_user.id, token_key)
 
-                    await message.answer(
-                        markdown.text(
-                            messages.REGISTER_SUCCESS,
-                            messages.TOKEN_ANSWER.format(token=token_key),
-                            messages.TOKEN_SAVED,
-                            sep='\n'
-                        ),
-                        parse_mode=ParseMode.HTML
-                    )
+                await message.answer(
+                    markdown.text(
+                        messages.REGISTER_SUCCESS,
+                        messages.TOKEN_ANSWER.format(token=token_key),
+                        messages.TOKEN_SAVED,
+                        sep='\n'
+                    ),
+                    parse_mode=ParseMode.HTML
+                )
+            else:
+                if data.get("username") is not None:
+                    error_message = messages.USER_ALREADY_EXISTS
                 else:
-                    if data.get("username") is not None:
-                        error_message = messages.USER_ALREADY_EXISTS
-                    else:
-                        error_message = str(data)
-                    await message.answer(messages.REGISTER_ERROR.format(error=error_message))
-
-        except aiohttp.ClientConnectionError:
-            await message.answer(messages.API_CONNECTION_ERROR)
-        except Exception as e:
-            await message.answer(messages.REGISTER_ERROR.format(error=str(e)))
+                    error_message = str(data)
+                await message.answer(messages.REGISTER_ERROR.format(error=error_message))
 
     await state.clear()
