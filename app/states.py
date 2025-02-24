@@ -6,3 +6,7 @@ class RegisterState(StatesGroup):
 
 class UserState(StatesGroup):
     token = State()
+
+class AccountState(StatesGroup):
+    account_name = State()
+    account_balance = State()

@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from finance_tg_bot.database.models import UserToken
+from .models import UserToken
 
 
 def get_token(db: Session, user_id: int):

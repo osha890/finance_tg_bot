@@ -1,4 +1,5 @@
 import aiohttp
+
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -8,9 +9,11 @@ from aiogram.enums import ParseMode
 
 from finance_tg_bot import messages
 from finance_tg_bot.config import API_BASE_URL
-from finance_tg_bot.states import RegisterState
 from finance_tg_bot.database.db_settings import get_db
 from finance_tg_bot.database.crud import save_token, get_token
+
+
+from ..states import RegisterState
 
 router = Router()
 
