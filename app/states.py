@@ -4,8 +4,8 @@ class RegisterState(StatesGroup):
     username = State()
     password = State()
 
-class UserState(StatesGroup):
-    token = State()
+class TokenState(StatesGroup):
+    token_key = State()
 
 class AccountState(StatesGroup):
     account_name = State()

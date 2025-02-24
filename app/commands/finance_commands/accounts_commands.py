@@ -7,26 +7,18 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from finance_tg_bot.config import API_BASE_URL
-from finance_tg_bot import messages
-
+from ..utils import token_key_if_exists
 from ...states import AccountState
 
 router = Router()
 
 
 @router.message(Command("accounts"))
-async def list_accounts(message: Message, state: FSMContext):
-    # Получаем токен из сессии
-    data = await state.get_data()
-    token = data.get('token')
+async def list_accounts(message: Message):
+    token_key = await token_key_if_exists(message)
 
-    if not token:
-        await message.answer(messages.NO_TOKEN)
-        return
-
-    # Получаем список счетов с API
     async with aiohttp.ClientSession() as session:
-        async with session.get(f"{API_BASE_URL}/accounts/", headers={"Authorization": f"Token {token}"}) as response:
+        async with session.get(f"{API_BASE_URL}/accounts/", headers={"Authorization": f"Token {token_key}"}) as response:
             if response.status == 200:
                 accounts = await response.json()
                 if accounts:
@@ -41,13 +33,8 @@ async def list_accounts(message: Message, state: FSMContext):
 
 @router.message(Command("create_account"))
 async def create_accounts(message: Message, state: FSMContext):
-    data = await state.get_data()
-    token = data.get('token')
-
-    if not token:
-        await message.answer(messages.NO_TOKEN)
-        return
-
+    token_key = await token_key_if_exists(message)
+    await state.update_data(token_key=token_key)
     await message.answer("Введите название счета")
     await state.set_state(AccountState.account_name)
 
@@ -68,10 +55,10 @@ async def register_username(message: Message, state: FSMContext):
         "balance": message.text.strip(),
     }
 
-    token = state_data.get("token")
+    token_key = state_data.get("token_key")
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{API_BASE_URL}/accounts/", headers={"Authorization": f"Token {token}"},
+        async with session.post(f"{API_BASE_URL}/accounts/", headers={"Authorization": f"Token {token_key}"},
                                 json=json_data) as response:
             response_data = await response.json()
             if response.status == 201:
@@ -79,5 +66,7 @@ async def register_username(message: Message, state: FSMContext):
             elif response_data.get('balance') is not None:
                 await message.answer("Неверный формат баланса")
             else:
-                formatted_error = json.dumps(response_data, indent=4)  # Преобразуем в красивый JSON формат
-                await message.answer(f"Ошибка:\n{formatted_error}")
+                formatted_error = json.dumps(response_data, indent=4)
+                await message.answer(f"{formatted_error}")
+
+    await state.clear()

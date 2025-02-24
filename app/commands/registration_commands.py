@@ -12,24 +12,21 @@ from finance_tg_bot.config import API_BASE_URL
 from finance_tg_bot.database.db_settings import get_db
 from finance_tg_bot.database.crud import save_token, get_token
 
-
 from ..states import RegisterState
 
 router = Router()
 
 
 @router.message(Command("token"))
-async def token_cmd(message: Message, state: FSMContext):
+async def token_cmd(message: Message):
     args = message.text.split(maxsplit=1)
     user_id = message.from_user.id
     if len(args) < 2:
-        # with get_db() as db:
-        #     token = get_token(db, user_id).token
-        data = await state.get_data()
-        token = data.get('token')
+        with get_db() as db:
+            token = get_token(db, user_id)
         if token:
             text = markdown.text(
-                messages.TOKEN_ANSWER.format(token=token),
+                messages.TOKEN_ANSWER.format(token=token.key),
                 '\n',
                 messages.TOKEN_ADD_HOW_TO,
                 sep='\n'
@@ -43,12 +40,10 @@ async def token_cmd(message: Message, state: FSMContext):
             )
         await message.answer(text, parse_mode=ParseMode.HTML)
     else:
-        token = args[1].strip()
+        key = args[1].strip()
 
         with get_db() as db:
-            save_token(db, user_id, token)
-
-        await state.update_data(token=token)
+            save_token(db, user_id, key)
 
         await message.answer(messages.TOKEN_SAVED)
 
@@ -71,54 +66,37 @@ async def register_password(message: Message, state: FSMContext):
     user_data = await state.get_data()
     username = user_data["username"]
     password = message.text.strip()
-    token = None
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{API_BASE_URL}/register/",
-                                json={"username": username, "password": password}) as response:
-            data = await response.json()
-            if response.status == 201:
-                token = data.get("token")
+        try:
+            async with session.post(f"{API_BASE_URL}/register/",
+                                    json={"username": username, "password": password}) as response:
+                data = await response.json()
+                if response.status == 201:
+                    token_key = data.get("token")
 
-                with get_db() as db:
-                    save_token(db, message.from_user.id, token)
+                    with get_db() as db:
+                        save_token(db, message.from_user.id, token_key)
 
-                await message.answer(
-                    markdown.text(
-                        messages.REGISTER_SUCCESS.format(token=token),
-                        messages.TOKEN_SAVED,
-                        sep='\n'
+                    await message.answer(
+                        markdown.text(
+                            messages.REGISTER_SUCCESS,
+                            messages.TOKEN_ANSWER.format(token=token_key),
+                            messages.TOKEN_SAVED,
+                            sep='\n'
+                        ),
+                        parse_mode=ParseMode.HTML
                     )
-                )
-            else:
-                if data.get("username") is not None:
-                    error_message = messages.USER_ALREADY_EXISTS
                 else:
-                    error_message = str(data)
-                await message.answer(messages.REGISTER_ERROR.format(error=error_message))
+                    if data.get("username") is not None:
+                        error_message = messages.USER_ALREADY_EXISTS
+                    else:
+                        error_message = str(data)
+                    await message.answer(messages.REGISTER_ERROR.format(error=error_message))
+
+        except aiohttp.ClientConnectionError:
+            await message.answer(messages.API_CONNECTION_ERROR)
+        except Exception as e:
+            await message.answer(messages.REGISTER_ERROR.format(error=str(e)))
 
     await state.clear()
-    await state.update_data(token=token)
-
-
-@router.message(Command("set_state"))
-async def set_state_cmd(message: Message, state: FSMContext):
-    user_id = message.from_user.id
-    with get_db() as db:
-        token = get_token(db, user_id)
-    if token is not None:
-        token = token.token
-        await state.update_data(token=token)
-        text = markdown.text(
-            messages.TOKEN_SAVED,
-            messages.TOKEN_ANSWER.format(token=token),
-            sep='\n'
-        )
-    else:
-        text = markdown.text(
-            messages.NO_TOKEN,
-            '\n',
-            messages.TOKEN_ADD_HOW_TO,
-            sep='\n'
-        )
-    await message.answer(text, parse_mode=ParseMode.HTML)
