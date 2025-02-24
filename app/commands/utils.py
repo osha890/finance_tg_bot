@@ -1,3 +1,6 @@
+from functools import wraps
+
+import aiohttp
 from aiogram.types import Message
 
 from finance_tg_bot import messages
@@ -13,3 +16,18 @@ async def token_key_if_exists(message: Message):
         await message.answer(messages.NO_TOKEN)
         return
     return token.key
+
+def handle_api_errors():
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            try:
+                return await func(*args, **kwargs)
+            except aiohttp.ClientConnectionError:
+                message = args[0]  # предполагаем, что первый аргумент — это `message` из aiogram
+                await message.answer(messages.API_CONNECTION_ERROR)
+            except Exception as e:
+                message = args[0]
+                await message.answer(f"{str(e)}")
+        return wrapper
+    return decorator

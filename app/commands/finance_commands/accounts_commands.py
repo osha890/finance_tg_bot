@@ -6,19 +6,22 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
+from finance_tg_bot import messages
 from finance_tg_bot.config import API_BASE_URL
-from ..utils import token_key_if_exists
+from ..utils import token_key_if_exists, handle_api_errors
 from ...states import AccountState
 
 router = Router()
 
-
 @router.message(Command("accounts"))
+@handle_api_errors()
 async def list_accounts(message: Message):
     token_key = await token_key_if_exists(message)
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(f"{API_BASE_URL}/accounts/", headers={"Authorization": f"Token {token_key}"}) as response:
+        async with session.get(f"{API_BASE_URL}/accounts/",
+                               headers={"Authorization": f"Token {token_key}"}) as response:
+            response_data = await response.json()
             if response.status == 200:
                 accounts = await response.json()
                 if accounts:
@@ -28,7 +31,8 @@ async def list_accounts(message: Message):
                 else:
                     await message.answer("У вас нет счетов.")
             else:
-                await message.answer("Ошибка при получении списка счетов.")
+                formatted_error = json.dumps(response_data, indent=4)
+                await message.answer(f"{formatted_error}")
 
 
 @router.message(Command("create_account"))
@@ -47,6 +51,7 @@ async def register_username(message: Message, state: FSMContext):
 
 
 @router.message(AccountState.account_balance)
+@handle_api_errors()
 async def register_username(message: Message, state: FSMContext):
     state_data = await state.get_data()
     account_name = state_data.get("account_name")
