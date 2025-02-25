@@ -18,6 +18,38 @@ from finance_tg_bot.app.utils import handle_api_errors
 router = Router()
 
 
+# ======== API HANDLERS =================================================================
+
+@handle_api_errors()
+async def register_api(message, session, json_data):
+    async with session.post(f"{API_BASE_URL}/register/",
+                            json=json_data) as response:
+        data = await response.json()
+        if response.status == 201:
+            token_key = data.get("token")
+
+            with get_db() as db:
+                save_token(db, message.from_user.id, token_key)
+
+            await message.answer(
+                markdown.text(
+                    messages.REGISTER_SUCCESS,
+                    messages.TOKEN_ANSWER.format(token=token_key),
+                    messages.TOKEN_SAVED,
+                    sep='\n'
+                ),
+                parse_mode=ParseMode.HTML
+            )
+        else:
+            if data.get("username") is not None:
+                error_message = messages.USER_ALREADY_EXISTS
+            else:
+                error_message = str(data)
+            await message.answer(messages.REGISTER_ERROR.format(error=error_message))
+
+
+# ======== TOKEN =================================================================
+
 @router.message(Command("token"))
 async def token_cmd(message: Message):
     args = message.text.split(maxsplit=1)
@@ -49,6 +81,8 @@ async def token_cmd(message: Message):
         await message.answer(messages.TOKEN_SAVED)
 
 
+# ======== REGISTER =================================================================
+
 @router.message(Command("register"))
 async def register_cmd(message: Message, state: FSMContext):
     await message.answer(messages.ENTER_USERNAME)
@@ -68,31 +102,9 @@ async def register_password(message: Message, state: FSMContext):
     user_data = await state.get_data()
     username = user_data["username"]
     password = message.text.strip()
+    json_data = {"username": username, "password": password}
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{API_BASE_URL}/register/",
-                                json={"username": username, "password": password}) as response:
-            data = await response.json()
-            if response.status == 201:
-                token_key = data.get("token")
-
-                with get_db() as db:
-                    save_token(db, message.from_user.id, token_key)
-
-                await message.answer(
-                    markdown.text(
-                        messages.REGISTER_SUCCESS,
-                        messages.TOKEN_ANSWER.format(token=token_key),
-                        messages.TOKEN_SAVED,
-                        sep='\n'
-                    ),
-                    parse_mode=ParseMode.HTML
-                )
-            else:
-                if data.get("username") is not None:
-                    error_message = messages.USER_ALREADY_EXISTS
-                else:
-                    error_message = str(data)
-                await message.answer(messages.REGISTER_ERROR.format(error=error_message))
+        await register_api(message, session, json_data)
 
     await state.clear()

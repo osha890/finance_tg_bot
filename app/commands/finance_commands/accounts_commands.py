@@ -17,28 +17,75 @@ router = Router()
 accounts_url = f"{API_BASE_URL}/accounts/"
 
 
+# ======== API HANDLERS ===============================================================================
+
+@handle_api_errors()
+async def list_accounts_api(message, session, token_key):
+    async with session.get(url=accounts_url,
+                           headers={"Authorization": f"Token {token_key}"}) as response:
+        response_data = await response.json()
+        if response.status == 200:
+            accounts = await response.json()
+            if accounts:
+                text = "\n".join(
+                    [f"ID: {account['id']} - {account['name']}: {account['balance']}" for account in accounts])
+                await message.answer(text)
+            else:
+                await message.answer(messages.NO_ACCOUNTS)
+        else:
+            formatted_error = json.dumps(response_data, indent=4)
+            await message.answer(f"{formatted_error}")
+
+
+@handle_api_errors()
+async def create_account_api(message, session, token_key, json_data):
+    async with session.post(url=accounts_url, headers={"Authorization": f"Token {token_key}"},
+                            json=json_data) as response:
+        response_data = await response.json()
+        if response.status == 201:
+            await message.answer(messages.ACCOUNT_ADDED)
+        elif response_data.get('balance') is not None:
+            await message.answer(messages.WRONG_ACCOUNT_BALANCE)
+        else:
+            formatted_error = json.dumps(response_data, indent=4)
+            await message.answer(f"{formatted_error}")
+
+
+@handle_api_errors()
+async def delete_account_api(message, session, token_key):
+    async with session.delete(url=f"{accounts_url}{message.text.strip()}/",
+                              headers={"Authorization": f"Token {token_key}"}) as response:
+        if response.status == 204:
+            await message.answer(messages.ACCOUNT_DELETED)
+        else:
+            response_data = await response.json()
+            formatted_error = json.dumps(response_data, indent=4)
+            await message.answer(f"{formatted_error}")
+
+
+@handle_api_errors()
+async def update_account_api(message, session, token_key, account_id, json_data):
+    async with session.patch(url=f"{accounts_url}{account_id}/",
+                             headers={"Authorization": f"Token {token_key}"},
+                             json=json_data) as response:
+        response_data = await response.json()
+        if response.status == 200:
+            await message.answer(messages.ACCOUNT_UPDATED)
+        elif response_data.get('balance') is not None:
+            await message.answer(messages.WRONG_ACCOUNT_BALANCE)
+        else:
+            formatted_error = json.dumps(response_data, indent=4)
+            await message.answer(f"{formatted_error}")
+
+
 # ======== GET ACCOUNTS ===============================================================================
 
 @router.message(Command("accounts"))
-@handle_api_errors()
 async def list_accounts(message: Message):
     token_key = await token_key_if_exists(message)
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(url=accounts_url,
-                               headers={"Authorization": f"Token {token_key}"}) as response:
-            response_data = await response.json()
-            if response.status == 200:
-                accounts = await response.json()
-                if accounts:
-                    text = "\n".join(
-                        [f"ID: {account['id']} - {account['name']}: {account['balance']}" for account in accounts])
-                    await message.answer(text)
-                else:
-                    await message.answer(messages.NO_ACCOUNTS)
-            else:
-                formatted_error = json.dumps(response_data, indent=4)
-                await message.answer(f"{formatted_error}")
+        await list_accounts_api(message, session, token_key)
 
 
 # ======== CREATE ACCOUNT ===============================================================================
@@ -53,13 +100,12 @@ async def create_accounts(message: Message, state: FSMContext):
 
 @router.message(CreateAccountState.account_name_create)
 async def set_account_name(message: Message, state: FSMContext):
-    await state.update_data(account_name=message.text.strip())
+    await state.update_data(account_name_create=message.text.strip())
     await message.answer(messages.ENTER_ACCOUNT_BALANCE)
     await state.set_state(CreateAccountState.account_balance_create)
 
 
 @router.message(CreateAccountState.account_balance_create)
-@handle_api_errors()
 async def set_account_balance(message: Message, state: FSMContext):
     state_data = await state.get_data()
     account_name = state_data.get("account_name_create")
@@ -71,16 +117,7 @@ async def set_account_balance(message: Message, state: FSMContext):
     token_key = state_data.get("token_key")
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(url=accounts_url, headers={"Authorization": f"Token {token_key}"},
-                                json=json_data) as response:
-            response_data = await response.json()
-            if response.status == 201:
-                await message.answer(messages.ACCOUNT_ADDED)
-            elif response_data.get('balance') is not None:
-                await message.answer(messages.WRONG_ACCOUNT_BALANCE)
-            else:
-                formatted_error = json.dumps(response_data, indent=4)
-                await message.answer(f"{formatted_error}")
+        await create_account_api(message, session, token_key, json_data)
 
     await state.clear()
 
@@ -96,19 +133,11 @@ async def delete_account(message: Message, state: FSMContext):
 
 
 @router.message(DeleteAccountState.account_id_delete)
-@handle_api_errors()
 async def delete_account(message: Message, state: FSMContext):
     state_data = await state.get_data()
     token_key = state_data.get("token_key")
     async with aiohttp.ClientSession() as session:
-        async with session.delete(url=f"{accounts_url}{message.text.strip()}/",
-                                  headers={"Authorization": f"Token {token_key}"}) as response:
-            if response.status == 204:
-                await message.answer(messages.ACCOUNT_DELETED)
-            else:
-                response_data = await response.json()
-                formatted_error = json.dumps(response_data, indent=4)
-                await message.answer(f"{formatted_error}")
+        await delete_account_api(message, session, token_key)
 
     await state.clear()
 
@@ -172,15 +201,6 @@ async def update_account_balance(message: Message, state: FSMContext):
     else:
         token_key = state_data.get("token_key")
         async with aiohttp.ClientSession() as session:
-            async with session.patch(url=f"{accounts_url}{account_id}/", headers={"Authorization": f"Token {token_key}"},
-                                     json=json_data) as response:
-                response_data = await response.json()
-                if response.status == 200:
-                    await message.answer(messages.ACCOUNT_UPDATED)
-                elif response_data.get('balance') is not None:
-                    await message.answer(messages.WRONG_ACCOUNT_BALANCE)
-                else:
-                    formatted_error = json.dumps(response_data, indent=4)
-                    await message.answer(f"{formatted_error}")
+            await update_account_api(message, session, token_key, account_id, json_data)
 
     await state.clear()
