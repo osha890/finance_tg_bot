@@ -10,6 +10,8 @@ from aiogram.utils import markdown
 from finance_tg_bot import messages
 from finance_tg_bot.config import API_BASE_URL
 from finance_tg_bot.app.utils import token_key_if_exists, handle_api_errors
+from finance_tg_bot.session import get_session
+
 from ...states import CreateAccountState, DeleteAccountState, UpdateAccountState
 
 router = Router()
@@ -20,7 +22,8 @@ accounts_url = f"{API_BASE_URL}/accounts/"
 # ======== API HANDLERS ===============================================================================
 
 @handle_api_errors()
-async def list_accounts_api(session, token_key):
+async def list_accounts_api(token_key):
+    session = get_session()
     async with session.get(url=accounts_url,
                            headers={"Authorization": f"Token {token_key}"}) as response:
         response_data = await response.json()
@@ -38,7 +41,8 @@ async def list_accounts_api(session, token_key):
 
 
 @handle_api_errors()
-async def create_account_api(session, token_key, json_data):
+async def create_account_api(token_key, json_data):
+    session = get_session()
     async with session.post(url=accounts_url, headers={"Authorization": f"Token {token_key}"},
                             json=json_data) as response:
         response_data = await response.json()
@@ -55,7 +59,8 @@ async def create_account_api(session, token_key, json_data):
 
 
 @handle_api_errors()
-async def delete_account_api(session, account_id, token_key):
+async def delete_account_api(account_id, token_key):
+    session = get_session()
     async with session.delete(url=f"{accounts_url}{account_id}/",
                               headers={"Authorization": f"Token {token_key}"}) as response:
         if response.status == 204:
@@ -68,7 +73,8 @@ async def delete_account_api(session, account_id, token_key):
 
 
 @handle_api_errors()
-async def update_account_api(session, token_key, account_id, json_data):
+async def update_account_api(token_key, account_id, json_data):
+    session = get_session()
     async with session.patch(url=f"{accounts_url}{account_id}/",
                              headers={"Authorization": f"Token {token_key}"},
                              json=json_data) as response:
@@ -89,9 +95,8 @@ async def update_account_api(session, token_key, account_id, json_data):
 async def list_accounts(message: Message):
     token_key = await token_key_if_exists(message)
 
-    async with aiohttp.ClientSession() as session:
-        answer_text = await list_accounts_api(session, token_key)
-        await message.answer(answer_text)
+    answer_text = await list_accounts_api(token_key)
+    await message.answer(answer_text)
 
 
 # ======== CREATE ACCOUNT ===============================================================================
@@ -122,9 +127,8 @@ async def set_account_balance(message: Message, state: FSMContext):
 
     token_key = state_data.get("token_key")
 
-    async with aiohttp.ClientSession() as session:
-        answer_text = await create_account_api(session, token_key, json_data)
-        await message.answer(answer_text)
+    answer_text = await create_account_api(token_key, json_data)
+    await message.answer(answer_text)
 
     await state.clear()
 
@@ -143,9 +147,9 @@ async def delete_account(message: Message, state: FSMContext):
 async def delete_account(message: Message, state: FSMContext):
     state_data = await state.get_data()
     token_key = state_data.get("token_key")
-    async with aiohttp.ClientSession() as session:
-        answer_text = await delete_account_api(session, message.text.strip(), token_key)
-        await message.answer(answer_text)
+
+    answer_text = await delete_account_api(message.text.strip(), token_key)
+    await message.answer(answer_text)
 
     await state.clear()
 
@@ -208,8 +212,8 @@ async def update_account_balance(message: Message, state: FSMContext):
         await message.answer(messages.ACCOUNT_NOT_UPDATED)
     else:
         token_key = state_data.get("token_key")
-        async with aiohttp.ClientSession() as session:
-            answer_text = await update_account_api(session, token_key, account_id, json_data)
-            await message.answer(answer_text)
+
+        answer_text = await update_account_api(token_key, account_id, json_data)
+        await message.answer(answer_text)
 
     await state.clear()

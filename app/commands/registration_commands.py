@@ -14,6 +14,7 @@ from finance_tg_bot.database.crud import save_token, get_token
 
 from ..states import RegisterState
 from finance_tg_bot.app.utils import handle_api_errors
+from finance_tg_bot.session import get_session
 
 router = Router()
 
@@ -21,7 +22,8 @@ router = Router()
 # ======== API HANDLERS =================================================================
 
 @handle_api_errors()
-async def register_api(session, user_id, json_data):
+async def register_api(user_id, json_data):
+    session = get_session()
     async with session.post(f"{API_BASE_URL}/register/",
                             json=json_data) as response:
         data = await response.json()
@@ -104,8 +106,11 @@ async def register_password(message: Message, state: FSMContext):
     password = message.text.strip()
     json_data = {"username": username, "password": password}
 
-    async with aiohttp.ClientSession() as session:
-        answer_text = await register_api(session, message.from_user.id, json_data)
-        await message.answer(answer_text, parse_mode=ParseMode.HTML)
+    # async with aiohttp.ClientSession() as session:
+    #     answer_text = await register_api(session, message.from_user.id, json_data)
+    #     await message.answer(answer_text, parse_mode=ParseMode.HTML)
+
+    answer_text = await register_api(message.from_user.id, json_data)
+    await message.answer(answer_text, parse_mode=ParseMode.HTML)
 
     await state.clear()
