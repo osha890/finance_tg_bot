@@ -24,10 +24,8 @@ def handle_api_errors():
             try:
                 return await func(*args, **kwargs)
             except aiohttp.ClientConnectionError:
-                message = args[0]  # предполагаем, что первый аргумент — это `message` из aiogram
-                await message.answer(messages.API_CONNECTION_ERROR)
+                return messages.API_CONNECTION_ERROR
             except Exception as e:
-                message = args[0]
-                await message.answer(f"{str(e)}")
+                return f"{str(e)}"
         return wrapper
     return decorator

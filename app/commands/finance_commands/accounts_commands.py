@@ -20,62 +20,67 @@ accounts_url = f"{API_BASE_URL}/accounts/"
 # ======== API HANDLERS ===============================================================================
 
 @handle_api_errors()
-async def list_accounts_api(message, session, token_key):
+async def list_accounts_api(session, token_key):
     async with session.get(url=accounts_url,
                            headers={"Authorization": f"Token {token_key}"}) as response:
         response_data = await response.json()
         if response.status == 200:
             accounts = await response.json()
             if accounts:
-                text = "\n".join(
+                answer_text = "\n".join(
                     [f"ID: {account['id']} - {account['name']}: {account['balance']}" for account in accounts])
-                await message.answer(text)
             else:
-                await message.answer(messages.NO_ACCOUNTS)
+                answer_text = messages.NO_ACCOUNTS
         else:
             formatted_error = json.dumps(response_data, indent=4)
-            await message.answer(f"{formatted_error}")
+            answer_text = f"{formatted_error}"
+        return answer_text
 
 
 @handle_api_errors()
-async def create_account_api(message, session, token_key, json_data):
+async def create_account_api(session, token_key, json_data):
     async with session.post(url=accounts_url, headers={"Authorization": f"Token {token_key}"},
                             json=json_data) as response:
         response_data = await response.json()
         if response.status == 201:
-            await message.answer(messages.ACCOUNT_ADDED)
+            answer_text = messages.ACCOUNT_ADDED
+        elif response_data.get('name') is not None:
+            answer_text = messages.ACCOUNT_ALREADY_EXIST
         elif response_data.get('balance') is not None:
-            await message.answer(messages.WRONG_ACCOUNT_BALANCE)
+            answer_text = messages.WRONG_ACCOUNT_BALANCE
         else:
             formatted_error = json.dumps(response_data, indent=4)
-            await message.answer(f"{formatted_error}")
+            answer_text = f"{formatted_error}"
+        return answer_text
 
 
 @handle_api_errors()
-async def delete_account_api(message, session, token_key):
-    async with session.delete(url=f"{accounts_url}{message.text.strip()}/",
+async def delete_account_api(session, account_id, token_key):
+    async with session.delete(url=f"{accounts_url}{account_id}/",
                               headers={"Authorization": f"Token {token_key}"}) as response:
         if response.status == 204:
-            await message.answer(messages.ACCOUNT_DELETED)
+            answer_text = messages.ACCOUNT_DELETED
         else:
             response_data = await response.json()
             formatted_error = json.dumps(response_data, indent=4)
-            await message.answer(f"{formatted_error}")
+            answer_text = f"{formatted_error}"
+        return answer_text
 
 
 @handle_api_errors()
-async def update_account_api(message, session, token_key, account_id, json_data):
+async def update_account_api(session, token_key, account_id, json_data):
     async with session.patch(url=f"{accounts_url}{account_id}/",
                              headers={"Authorization": f"Token {token_key}"},
                              json=json_data) as response:
         response_data = await response.json()
         if response.status == 200:
-            await message.answer(messages.ACCOUNT_UPDATED)
+            answer_text = messages.ACCOUNT_UPDATED
         elif response_data.get('balance') is not None:
-            await message.answer(messages.WRONG_ACCOUNT_BALANCE)
+            answer_text = messages.WRONG_ACCOUNT_BALANCE
         else:
             formatted_error = json.dumps(response_data, indent=4)
-            await message.answer(f"{formatted_error}")
+            answer_text = f"{formatted_error}"
+        return answer_text
 
 
 # ======== GET ACCOUNTS ===============================================================================
@@ -85,7 +90,8 @@ async def list_accounts(message: Message):
     token_key = await token_key_if_exists(message)
 
     async with aiohttp.ClientSession() as session:
-        await list_accounts_api(message, session, token_key)
+        answer_text = await list_accounts_api(session, token_key)
+        await message.answer(answer_text)
 
 
 # ======== CREATE ACCOUNT ===============================================================================
@@ -117,7 +123,8 @@ async def set_account_balance(message: Message, state: FSMContext):
     token_key = state_data.get("token_key")
 
     async with aiohttp.ClientSession() as session:
-        await create_account_api(message, session, token_key, json_data)
+        answer_text = await create_account_api(session, token_key, json_data)
+        await message.answer(answer_text)
 
     await state.clear()
 
@@ -137,7 +144,8 @@ async def delete_account(message: Message, state: FSMContext):
     state_data = await state.get_data()
     token_key = state_data.get("token_key")
     async with aiohttp.ClientSession() as session:
-        await delete_account_api(message, session, token_key)
+        answer_text = await delete_account_api(session, message.text.strip(), token_key)
+        await message.answer(answer_text)
 
     await state.clear()
 
@@ -201,6 +209,7 @@ async def update_account_balance(message: Message, state: FSMContext):
     else:
         token_key = state_data.get("token_key")
         async with aiohttp.ClientSession() as session:
-            await update_account_api(message, session, token_key, account_id, json_data)
+            answer_text = await update_account_api(session, token_key, account_id, json_data)
+            await message.answer(answer_text)
 
     await state.clear()

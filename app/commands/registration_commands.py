@@ -21,7 +21,7 @@ router = Router()
 # ======== API HANDLERS =================================================================
 
 @handle_api_errors()
-async def register_api(message, session, json_data):
+async def register_api(session, user_id, json_data):
     async with session.post(f"{API_BASE_URL}/register/",
                             json=json_data) as response:
         data = await response.json()
@@ -29,23 +29,23 @@ async def register_api(message, session, json_data):
             token_key = data.get("token")
 
             with get_db() as db:
-                save_token(db, message.from_user.id, token_key)
+                save_token(db, user_id, token_key)
 
-            await message.answer(
+            answer_text = (
                 markdown.text(
                     messages.REGISTER_SUCCESS,
                     messages.TOKEN_ANSWER.format(token=token_key),
                     messages.TOKEN_SAVED,
                     sep='\n'
-                ),
-                parse_mode=ParseMode.HTML
+                )
             )
         else:
             if data.get("username") is not None:
                 error_message = messages.USER_ALREADY_EXISTS
             else:
                 error_message = str(data)
-            await message.answer(messages.REGISTER_ERROR.format(error=error_message))
+            answer_text = messages.REGISTER_ERROR.format(error=error_message)
+        return answer_text
 
 
 # ======== TOKEN =================================================================
@@ -105,6 +105,7 @@ async def register_password(message: Message, state: FSMContext):
     json_data = {"username": username, "password": password}
 
     async with aiohttp.ClientSession() as session:
-        await register_api(message, session, json_data)
+        answer_text = await register_api(session, message.from_user.id, json_data)
+        await message.answer(answer_text, parse_mode=ParseMode.HTML)
 
     await state.clear()

@@ -24,6 +24,7 @@ ACCOUNT_DELETED = "Счет успешно удален"
 ACCOUNT_UPDATED = "Счет успешно изменен"
 ACCOUNT_NOT_UPDATED = "Счет не был изменен"
 WRONG_ACCOUNT_BALANCE = "Неверный формат баланса"
+ACCOUNT_ALREADY_EXIST = "Аккаунт с таким именем уже существует"
 
 API_CONNECTION_ERROR = "Отсутствует соединение с API. Попробуйте позже"
 SKIP = "Далее"
