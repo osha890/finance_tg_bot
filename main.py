@@ -1,6 +1,8 @@
 import logging
 import asyncio
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 
 from config import TOKEN
 from finance_tg_bot.app.commands.base_commands import router as base_cmd_router
