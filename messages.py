@@ -14,6 +14,7 @@ ENTER_PASSWORD = "Введите password"
 REGISTER_SUCCESS = "Регистрация завершена!"
 REGISTER_ERROR = "Ошибка регистрации: {error}"
 USER_ALREADY_EXISTS = "Пользователь с таким именем уже существует"
+KEEP_YOUR_TOKEN = "<u><i>Сохраните ваш токен. Он может понадобиться для аутентификации</i></u>"
 
 NO_ACCOUNTS = "У вас нет счетов"
 ENTER_ACCOUNT_NAME = "Введите название счёта"

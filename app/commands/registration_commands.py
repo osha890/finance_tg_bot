@@ -1,5 +1,3 @@
-import aiohttp
-
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -8,46 +6,40 @@ from aiogram.utils import markdown
 from aiogram.enums import ParseMode
 
 from finance_tg_bot import messages
-from finance_tg_bot.config import API_BASE_URL
 from finance_tg_bot.database.db_settings import get_db
 from finance_tg_bot.database.crud import save_token, get_token
 
+from ..api_handlers.users_api import register_api
 from ..states import RegisterState
-from finance_tg_bot.app.utils import handle_api_errors
-from finance_tg_bot.session import get_session
 
 router = Router()
 
 
-# ======== API HANDLERS =================================================================
+# ======== ANSWER MAKERS =================================================================
 
-@handle_api_errors()
-async def register_api(user_id, json_data):
-    session = get_session()
-    async with session.post(f"{API_BASE_URL}/register/",
-                            json=json_data) as response:
-        data = await response.json()
-        if response.status == 201:
-            token_key = data.get("token")
+async def make_answer_register(response, user_id):
+    data = await response.json()
+    if response.status == 201:
+        token_key = data.get("token")
 
-            with get_db() as db:
-                save_token(db, user_id, token_key)
+        with get_db() as db:
+            save_token(db, user_id, token_key)
 
-            answer_text = (
-                markdown.text(
-                    messages.REGISTER_SUCCESS,
-                    messages.TOKEN_ANSWER.format(token=token_key),
-                    messages.TOKEN_SAVED,
-                    sep='\n'
-                )
+        answer_text = (
+            markdown.text(
+                messages.REGISTER_SUCCESS,
+                messages.TOKEN_ANSWER.format(token=token_key),
+                messages.KEEP_YOUR_TOKEN,
+                sep='\n'
             )
+        )
+    else:
+        if data.get("username") is not None:
+            error_message = messages.USER_ALREADY_EXISTS
         else:
-            if data.get("username") is not None:
-                error_message = messages.USER_ALREADY_EXISTS
-            else:
-                error_message = str(data)
-            answer_text = messages.REGISTER_ERROR.format(error=error_message)
-        return answer_text
+            error_message = str(data)
+        answer_text = messages.REGISTER_ERROR.format(error=error_message)
+    return answer_text
 
 
 # ======== TOKEN =================================================================
@@ -99,18 +91,14 @@ async def register_username(message: Message, state: FSMContext):
 
 
 @router.message(RegisterState.password)
-@handle_api_errors()
 async def register_password(message: Message, state: FSMContext):
     user_data = await state.get_data()
     username = user_data["username"]
     password = message.text.strip()
     json_data = {"username": username, "password": password}
 
-    # async with aiohttp.ClientSession() as session:
-    #     answer_text = await register_api(session, message.from_user.id, json_data)
-    #     await message.answer(answer_text, parse_mode=ParseMode.HTML)
-
-    answer_text = await register_api(message.from_user.id, json_data)
+    response = await register_api(json_data)
+    answer_text = await make_answer_register(response, message.from_user.id)
     await message.answer(answer_text, parse_mode=ParseMode.HTML)
 
     await state.clear()
