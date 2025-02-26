@@ -9,7 +9,7 @@ from finance_tg_bot import messages
 from finance_tg_bot.database.db_settings import get_db
 from finance_tg_bot.database.crud import save_token, get_token
 
-from ..api_handlers.users_api import register_api
+from ..api_handlers.user_api import register_api
 from ..states import RegisterState
 
 router = Router()

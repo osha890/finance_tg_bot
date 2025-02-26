@@ -9,7 +9,7 @@ from aiogram.utils import markdown
 from finance_tg_bot import messages
 from finance_tg_bot.app.utils import token_key_if_exists
 
-from ...api_handlers.accounts_api import list_accounts_api, create_account_api, delete_account_api, update_account_api
+from ...api_handlers.account_api import list_accounts_api, create_account_api, delete_account_api, update_account_api
 from ...states import CreateAccountState, DeleteAccountState, UpdateAccountState
 
 router = Router()

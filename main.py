@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from config import TOKEN
 from finance_tg_bot.app.commands.base_commands import router as base_cmd_router
 from finance_tg_bot.app.commands.registration_commands import router as reg_cmd_router
-from finance_tg_bot.app.commands.finance_commands.accounts_commands import router as acc_cmd_router
+from finance_tg_bot.app.commands.finance_commands.account_commands import router as acc_cmd_router
 from finance_tg_bot.session import get_session, close_session
 
 logging.basicConfig(level=logging.INFO)
