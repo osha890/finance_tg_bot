@@ -17,6 +17,7 @@ async def token_key_if_exists(message: Message):
         return
     return token.key
 
+
 def handle_api_errors():
     def decorator(func):
         @wraps(func)
@@ -27,5 +28,21 @@ def handle_api_errors():
                 return messages.API_CONNECTION_ERROR
             except Exception as e:
                 return f"{str(e)}"
+
         return wrapper
+
     return decorator
+
+
+def get_type(operation_type):
+    if operation_type == 'income':
+        result = messages.INCOMES
+    elif operation_type == 'expense':
+        result = messages.EXPENSES
+    else:
+        result = messages.UNDEFINED_TYPE
+    return result
+
+
+def get_auth_header(token_key):
+    return {"Authorization": f"Token {token_key}"}

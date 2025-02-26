@@ -20,7 +20,7 @@ router = Router()
 async def make_answer_list_accounts(response):
     response_data = await response.json()
     if response.status == 200:
-        accounts = await response.json()
+        accounts = response_data
         if accounts:
             answer_text = "\n".join(
                 [f"ID: {account['id']} - {account['name']}: {account['balance']}" for account in accounts])

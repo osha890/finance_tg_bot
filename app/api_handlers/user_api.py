@@ -4,10 +4,6 @@ from finance_tg_bot.session import get_session
 from ..utils import handle_api_errors
 
 
-def get_auth_header(token_key):
-    return {"Authorization": f"Token {token_key}"}
-
-
 @handle_api_errors()
 async def register_api(json_data):
     session = get_session()

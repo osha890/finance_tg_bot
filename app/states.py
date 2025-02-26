@@ -23,3 +23,7 @@ class UpdateAccountState(StatesGroup):
     account_id_update = State()
     account_name_update = State()
     account_balance_update = State()
+
+
+class GetCategoriesState(StatesGroup):
+    category_type = State()

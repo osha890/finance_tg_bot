@@ -1,5 +1,4 @@
-from .user_api import get_auth_header
-from finance_tg_bot.app.utils import handle_api_errors
+from finance_tg_bot.app.utils import handle_api_errors, get_auth_header
 from finance_tg_bot.config import API_BASE_URL
 from finance_tg_bot.session import get_session
 
