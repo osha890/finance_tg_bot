@@ -49,6 +49,8 @@ async def make_answer_create_account(response):
 async def make_answer_delete_account(response):
     if response.status == 204:
         answer_text = messages.ACCOUNT_DELETED
+    elif response.status == 404:
+        answer_text = messages.ACCOUNT_NOT_FOUND
     else:
         response_data = await response.json()
         formatted_error = json.dumps(response_data, indent=4)
@@ -60,6 +62,8 @@ async def make_answer_update_account(response):
     response_data = await response.json()
     if response.status == 200:
         answer_text = messages.ACCOUNT_UPDATED
+    elif response.status == 404:
+        answer_text = messages.ACCOUNT_NOT_FOUND
     elif response_data.get('balance') is not None:
         answer_text = messages.WRONG_ACCOUNT_BALANCE
     else:
