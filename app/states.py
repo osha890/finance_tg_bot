@@ -42,3 +42,9 @@ class CreateCategoryState(StatesGroup):
 
 class DeleteCategoryState(StatesGroup):
     category_id_delete = State()
+
+
+class UpdateCategoryState(StatesGroup):
+    category_id_update = State()
+    category_name_update = State()
+    category_type_update = State()
