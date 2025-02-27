@@ -81,10 +81,10 @@ async def make_answer_update_account(response):
 @router.message(Command("accounts"))
 async def list_accounts(message: Message):
     token_key = await token_key_if_exists(message)
-
-    response = await list_accounts_api(token_key)
-    answer_text = await make_answer_list_accounts(response)
-    await message.answer(answer_text)
+    if token_key:
+        response = await list_accounts_api(token_key)
+        answer_text = await make_answer_list_accounts(response)
+        await message.answer(answer_text)
 
 
 # ======== CREATE ACCOUNT ===============================================================================
@@ -92,9 +92,10 @@ async def list_accounts(message: Message):
 @router.message(Command("create_account"))
 async def create_accounts(message: Message, state: FSMContext):
     token_key = await token_key_if_exists(message)
-    await state.update_data(token_key=token_key)
-    await message.answer(messages.ENTER_ACCOUNT_NAME)
-    await state.set_state(CreateAccountState.account_name_create)
+    if token_key:
+        await state.update_data(token_key=token_key)
+        await message.answer(messages.ENTER_ACCOUNT_NAME)
+        await state.set_state(CreateAccountState.account_name_create)
 
 
 @router.message(CreateAccountState.account_name_create)
@@ -127,9 +128,10 @@ async def set_account_balance(message: Message, state: FSMContext):
 @router.message(Command("delete_account"))
 async def delete_account(message: Message, state: FSMContext):
     token_key = await token_key_if_exists(message)
-    await state.update_data(token_key=token_key)
-    await message.answer(messages.ENTER_ACCOUNT_ID)
-    await state.set_state(DeleteAccountState.account_id_delete)
+    if token_key:
+        await state.update_data(token_key=token_key)
+        await message.answer(messages.ENTER_ACCOUNT_ID)
+        await state.set_state(DeleteAccountState.account_id_delete)
 
 
 @router.message(DeleteAccountState.account_id_delete)
@@ -149,9 +151,10 @@ async def delete_account(message: Message, state: FSMContext):
 @router.message(Command("update_account"))
 async def update_account(message: Message, state: FSMContext):
     token_key = await token_key_if_exists(message)
-    await state.update_data(token_key=token_key)
-    await message.answer(messages.ENTER_ACCOUNT_ID)
-    await state.set_state(UpdateAccountState.account_id_update)
+    if token_key:
+        await state.update_data(token_key=token_key)
+        await message.answer(messages.ENTER_ACCOUNT_ID)
+        await state.set_state(UpdateAccountState.account_id_update)
 
 
 @router.message(UpdateAccountState.account_id_update)

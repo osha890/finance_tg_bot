@@ -1,6 +1,8 @@
 from aiogram.fsm.state import State, StatesGroup
 
 
+# USER STATES
+
 class RegisterState(StatesGroup):
     username = State()
     password = State()
@@ -9,6 +11,8 @@ class RegisterState(StatesGroup):
 class TokenState(StatesGroup):
     token_key = State()
 
+
+# ACCOUNT STATES
 
 class CreateAccountState(StatesGroup):
     account_name_create = State()
@@ -25,6 +29,8 @@ class UpdateAccountState(StatesGroup):
     account_balance_update = State()
 
 
+# CATEGORY STATES
+
 class GetCategoriesState(StatesGroup):
     category_type_get = State()
 
@@ -32,3 +38,7 @@ class GetCategoriesState(StatesGroup):
 class CreateCategoryState(StatesGroup):
     category_name_create = State()
     category_type_create = State()
+
+
+class DeleteCategoryState(StatesGroup):
+    category_id_delete = State()
