@@ -18,6 +18,8 @@ router = Router()
 # ======== ANSWER MAKERS =================================================================
 
 async def make_answer_register(response, user_id):
+    if type(response) == str:
+        return response
     data = await response.json()
     if response.status == 201:
         token_key = data.get("token")

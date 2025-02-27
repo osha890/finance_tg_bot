@@ -1,3 +1,4 @@
+import json
 from functools import wraps
 
 import aiohttp
@@ -46,3 +47,8 @@ def get_type(operation_type):
 
 def get_auth_header(token_key):
     return {"Authorization": f"Token {token_key}"}
+
+
+def make_error_answer(response_data):
+    formatted_error = json.dumps(response_data, indent=4)
+    return f"{formatted_error}"

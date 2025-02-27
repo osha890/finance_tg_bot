@@ -26,4 +26,9 @@ class UpdateAccountState(StatesGroup):
 
 
 class GetCategoriesState(StatesGroup):
-    category_type = State()
+    category_type_get = State()
+
+
+class CreateCategoryState(StatesGroup):
+    category_name_create = State()
+    category_type_create = State()

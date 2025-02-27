@@ -7,7 +7,7 @@ from aiogram.types import Message
 from aiogram.utils import markdown
 
 from finance_tg_bot import messages
-from finance_tg_bot.app.utils import token_key_if_exists
+from finance_tg_bot.app.utils import token_key_if_exists, make_error_answer
 
 from ...api_handlers.account_api import list_accounts_api, create_account_api, delete_account_api, update_account_api
 from ...states import CreateAccountState, DeleteAccountState, UpdateAccountState
@@ -18,6 +18,8 @@ router = Router()
 # ======== ANSWER MAKERS ===============================================================================
 
 async def make_answer_list_accounts(response):
+    if type(response) == str:
+        return response
     response_data = await response.json()
     if response.status == 200:
         accounts = response_data
@@ -27,12 +29,13 @@ async def make_answer_list_accounts(response):
         else:
             answer_text = messages.NO_ACCOUNTS
     else:
-        formatted_error = json.dumps(response_data, indent=4)
-        answer_text = f"{formatted_error}"
+        answer_text = make_error_answer(response_data)
     return answer_text
 
 
 async def make_answer_create_account(response):
+    if type(response) == str:
+        return response
     response_data = await response.json()
     if response.status == 201:
         answer_text = messages.ACCOUNT_ADDED
@@ -41,24 +44,26 @@ async def make_answer_create_account(response):
     elif response_data.get('balance') is not None:
         answer_text = messages.WRONG_ACCOUNT_BALANCE
     else:
-        formatted_error = json.dumps(response_data, indent=4)
-        answer_text = f"{formatted_error}"
+        answer_text = make_error_answer(response_data)
     return answer_text
 
 
 async def make_answer_delete_account(response):
+    if type(response) == str:
+        return response
     if response.status == 204:
         answer_text = messages.ACCOUNT_DELETED
     elif response.status == 404:
         answer_text = messages.ACCOUNT_NOT_FOUND
     else:
         response_data = await response.json()
-        formatted_error = json.dumps(response_data, indent=4)
-        answer_text = f"{formatted_error}"
+        answer_text = make_error_answer(response_data)
     return answer_text
 
 
 async def make_answer_update_account(response):
+    if type(response) == str:
+        return response
     response_data = await response.json()
     if response.status == 200:
         answer_text = messages.ACCOUNT_UPDATED
@@ -67,8 +72,7 @@ async def make_answer_update_account(response):
     elif response_data.get('balance') is not None:
         answer_text = messages.WRONG_ACCOUNT_BALANCE
     else:
-        formatted_error = json.dumps(response_data, indent=4)
-        answer_text = f"{formatted_error}"
+        answer_text = make_error_answer(response_data)
     return answer_text
 
 

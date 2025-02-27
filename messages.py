@@ -40,6 +40,7 @@ CATEGORY_ADDED = "Категория успешно добавлена"
 CATEGORY_DELETED = "Категория успешно удалена"
 CATEGORY_UPDATED = "Категория успешно изменена"
 CATEGORY_NOT_UPDATED = "Категория не была изменена"
+WRONG_CATEGORY_TYPE = "Неверный тип категории"
 CATEGORY_ALREADY_EXIST = "Категория с таким именем уже существует"
 CATEGORY_NOT_FOUND = "Категория не найдена"
 
