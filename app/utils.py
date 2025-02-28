@@ -1,7 +1,8 @@
 import json
-from functools import wraps
-
 import aiohttp
+
+from functools import wraps
+from datetime import datetime
 from aiogram.types import Message
 
 from finance_tg_bot import messages
@@ -52,3 +53,8 @@ def get_auth_header(token_key):
 def make_error_answer(response_data):
     formatted_error = json.dumps(response_data, indent=4)
     return f"{formatted_error}"
+
+
+def get_readable_time(iso_date):
+    dt = datetime.fromisoformat(iso_date.rstrip("Z"))  # Убираем 'Z' и преобразуем в datetime
+    return dt.strftime("%d.%m.%Y - %H:%M")  # Например, формат "21.02.2025 13:12"
