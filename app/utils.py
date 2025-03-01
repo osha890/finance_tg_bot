@@ -65,6 +65,14 @@ def get_readable_time(iso_date):
     return dt.strftime("%d.%m.%Y - %H:%M")  # Например, формат "21.02.2025 13:12"
 
 
+def get_iso_date(date_str):
+    try:
+        dt = datetime.strptime(date_str, "%d.%m.%Y")  # Пробуем распарсить дату
+        return dt.isoformat() + "Z"  # Преобразуем в ISO и добавляем 'Z'
+    except ValueError:
+        return None  # Если ошибка парсинга, возвращаем None
+
+
 def get_str_item(item, item_class):
     if item_class == "account":
         return f"ID: {item['id']} - {item['name']}: {item['balance']}"
@@ -93,7 +101,7 @@ async def make_answer(response, item_class, messages_item):
     if rs == 200:
         response_data = await response.json()
 
-        if (response_data and type(response_data) == list) or "operations" in response_data:
+        if (response_data and type(response_data) == list) or len(response_data.get("operations")) != 0:
             if item_class == "operation":
                 items = response_data.get("operations")
             else:
@@ -102,7 +110,7 @@ async def make_answer(response, item_class, messages_item):
                 [get_str_item(item, item_class) for item in items])
             if item_class == "operation":
                 answer_text += f"\n\n{messages.TOTAL_AMOUNT}: {response_data.get("total_amount")}"
-        elif type(response_data) == dict:
+        elif type(response_data) == dict and "operations" not in response_data:
             item = response_data
             answer_text = markdown.text(
                 messages_item["updated"],

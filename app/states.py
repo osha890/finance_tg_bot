@@ -48,3 +48,14 @@ class UpdateCategoryState(StatesGroup):
     category_id_update = State()
     category_name_update = State()
     category_type_update = State()
+
+
+# OPERATION STATES
+
+class GetOperationsState(StatesGroup):
+    operation_type_get = State()
+    operation_date_get = State()
+    operation_date_after_get = State()
+    operation_date_before_get = State()
+    operation_account_get = State()
+    operation_category_get = State()
