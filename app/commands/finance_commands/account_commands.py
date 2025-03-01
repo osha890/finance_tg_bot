@@ -7,73 +7,12 @@ from aiogram.types import Message
 from aiogram.utils import markdown
 
 from finance_tg_bot import messages
-from finance_tg_bot.app.utils import token_key_if_exists, make_error_answer
+from finance_tg_bot.app.utils import token_key_if_exists, make_answer
 
 from ...api_handlers.account_api import list_accounts_api, create_account_api, delete_account_api, update_account_api
 from ...states import CreateAccountState, DeleteAccountState, UpdateAccountState
 
 router = Router()
-
-
-# ======== ANSWER MAKERS ===============================================================================
-
-async def make_answer_list_accounts(response):
-    if type(response) == str:
-        return response
-    response_data = await response.json()
-    if response.status == 200:
-        accounts = response_data
-        if accounts:
-            answer_text = "\n".join(
-                [f"ID: {account['id']} - {account['name']}: {account['balance']}" for account in accounts])
-        else:
-            answer_text = messages.NO_ACCOUNTS
-    else:
-        answer_text = make_error_answer(response_data)
-    return answer_text
-
-
-async def make_answer_create_account(response):
-    if type(response) == str:
-        return response
-    response_data = await response.json()
-    if response.status == 201:
-        answer_text = messages.ACCOUNT_ADDED
-    elif response_data.get('name') is not None:
-        answer_text = messages.ACCOUNT_ALREADY_EXIST
-    elif response_data.get('balance') is not None:
-        answer_text = messages.ACCOUNT_WRONG_BALANCE
-    else:
-        answer_text = make_error_answer(response_data)
-    return answer_text
-
-
-async def make_answer_delete_account(response):
-    if type(response) == str:
-        return response
-    if response.status == 204:
-        answer_text = messages.ACCOUNT_DELETED
-    elif response.status == 404:
-        answer_text = messages.ACCOUNT_NOT_FOUND
-    else:
-        response_data = await response.json()
-        answer_text = make_error_answer(response_data)
-    return answer_text
-
-
-async def make_answer_update_account(response):
-    if type(response) == str:
-        return response
-    response_data = await response.json()
-    if response.status == 200:
-        answer_text = messages.ACCOUNT_UPDATED
-    elif response.status == 404:
-        answer_text = messages.ACCOUNT_NOT_FOUND
-    elif response_data.get('balance') is not None:
-        answer_text = messages.ACCOUNT_WRONG_BALANCE
-    else:
-        answer_text = make_error_answer(response_data)
-    return answer_text
 
 
 # ======== GET ACCOUNTS ===============================================================================
@@ -83,7 +22,7 @@ async def list_accounts(message: Message):
     token_key = await token_key_if_exists(message)
     if token_key:
         response = await list_accounts_api(token_key)
-        answer_text = await make_answer_list_accounts(response)
+        answer_text = await make_answer(response, "account", messages.MESSAGES_ACCOUNT)
         await message.answer(answer_text)
 
 
@@ -117,7 +56,7 @@ async def set_account_balance(message: Message, state: FSMContext):
     token_key = state_data.get("token_key")
 
     response = await create_account_api(token_key, json_data)
-    answer_text = await make_answer_create_account(response)
+    answer_text = await make_answer(response, "account", messages.MESSAGES_ACCOUNT)
     await message.answer(answer_text)
 
     await state.clear()
@@ -140,7 +79,7 @@ async def delete_account(message: Message, state: FSMContext):
     token_key = state_data.get("token_key")
 
     response = await delete_account_api(token_key, message.text.strip())
-    answer_text = await make_answer_delete_account(response)
+    answer_text = await make_answer(response, "account", messages.MESSAGES_ACCOUNT)
     await message.answer(answer_text)
 
     await state.clear()
@@ -207,7 +146,7 @@ async def update_account_balance(message: Message, state: FSMContext):
         token_key = state_data.get("token_key")
 
         response = await update_account_api(token_key, account_id, json_data)
-        answer_text = await make_answer_update_account(response)
+        answer_text = await make_answer(response, "account", messages.MESSAGES_ACCOUNT)
         await message.answer(answer_text)
 
     await state.clear()

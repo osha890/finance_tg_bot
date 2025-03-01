@@ -4,6 +4,7 @@ import aiohttp
 from functools import wraps
 from datetime import datetime
 from aiogram.types import Message
+from aiogram.utils import markdown
 
 from finance_tg_bot import messages
 from finance_tg_bot.database.crud import get_token
@@ -50,7 +51,11 @@ def get_auth_header(token_key):
     return {"Authorization": f"Token {token_key}"}
 
 
-def make_error_answer(response_data):
+def make_error_answer(response_data, messages_item):
+    if "name" in response_data:
+        return messages_item["already_exists"]
+    if ("balance" or "type") in response_data:
+        return messages_item["wrong_value"]
     formatted_error = json.dumps(response_data, indent=4)
     return f"{formatted_error}"
 
@@ -58,3 +63,57 @@ def make_error_answer(response_data):
 def get_readable_time(iso_date):
     dt = datetime.fromisoformat(iso_date.rstrip("Z"))  # Убираем 'Z' и преобразуем в datetime
     return dt.strftime("%d.%m.%Y - %H:%M")  # Например, формат "21.02.2025 13:12"
+
+
+def get_str_item(item, item_class):
+    if item_class == "account":
+        return f"ID: {item['id']} - {item['name']}: {item['balance']}"
+    elif item_class == "category":
+        return f"ID: {item['id']} - {item['name']}: {get_type(item['type'])}"
+    # elif item == "operation":
+    #     pass
+    else:
+        return "WRONG ITEM"
+
+
+async def make_answer(response, item_class, messages_item):
+    if type(response) == str:
+        return response
+
+    rs = response.status
+
+    if rs == 200:
+        response_data = await response.json()
+
+        if response_data and type(response_data) == list:
+            items = response_data
+            answer_text = "\n".join(
+                [get_str_item(item, item_class) for item in items])
+        elif type(response_data) == dict:
+            item = response_data
+            answer_text = markdown.text(
+                messages_item["updated"],
+                get_str_item(item, item_class),
+                sep="\n"
+            )
+        else:
+            answer_text = messages_item["no_items"]
+
+    elif rs == 201:
+        response_data = await response.json()
+        item = response_data
+        answer_text = markdown.text(
+            messages_item["added"],
+            get_str_item(item, item_class),
+            sep="\n"
+        )
+
+    elif rs == 204:
+        answer_text = messages_item["deleted"]
+    elif rs == 403:
+        answer_text = messages_item["cant_change"]
+    elif rs == 404:
+        answer_text = messages_item["not_found"]
+    else:
+        answer_text = make_error_answer(await response.json(), messages_item)
+    return answer_text

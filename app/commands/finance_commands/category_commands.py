@@ -1,5 +1,3 @@
-import json
-
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -7,7 +5,7 @@ from aiogram.types import Message
 from aiogram.utils import markdown
 
 from finance_tg_bot import messages
-from finance_tg_bot.app.utils import token_key_if_exists, get_type, make_error_answer
+from finance_tg_bot.app.utils import token_key_if_exists, make_answer
 
 from ...api_handlers.category_api import (list_categories_api,
                                           create_category_api,
@@ -19,46 +17,6 @@ from ...states import (GetCategoriesState,
                        UpdateCategoryState)
 
 router = Router()
-
-
-# ======== ANSWER MAKER ===============================================================================
-
-async def make_answer_category(response, messages_item):
-    if type(response) == str:
-        return response
-
-    rs = response.status
-    if rs == 200:
-        response_data = await response.json()
-        if response_data and type(response_data) == list:
-            categories = response_data
-            answer_text = "\n".join(
-                [f"ID: {category['id']} - {category['name']}: {get_type(category['type'])}" for category in categories])
-        elif type(response_data) == dict:
-            category = response_data
-            answer_text = markdown.text(
-                messages_item["updated"],
-                f"ID: {category['id']} - {category['name']}: {get_type(category['type'])}",
-                sep="\n"
-            )
-        else:
-            answer_text = messages_item["no_items"]
-    elif rs == 201:
-        category = await response.json()
-        answer_text = markdown.text(
-            messages_item["added"],
-            f"ID: {category['id']} - {category['name']}: {get_type(category['type'])}",
-            sep="\n"
-        )
-    elif rs == 204:
-        answer_text = messages_item["deleted"]
-    elif rs == 403:
-        answer_text = messages_item["cant_change"]
-    elif rs == 404:
-        answer_text = messages_item["not_found"]
-    else:
-        answer_text = make_error_answer(await response.json())
-    return answer_text
 
 
 # ======== GET CATEGORIES ===============================================================================
@@ -93,7 +51,7 @@ async def choose_category_type(message: Message, state: FSMContext):
         pass
 
     response = await list_categories_api(token_key, params)
-    answer_text = await make_answer_category(response, messages.MESSAGES_CATEGORY)
+    answer_text = await make_answer(response, "category", messages.MESSAGES_CATEGORY)
 
     await message.answer(answer_text)
 
@@ -140,7 +98,7 @@ async def create_category_type(message: Message, state: FSMContext):
             "type": category_type
         }
         response = await create_category_api(token_key, json_data)
-        answer_text = await make_answer_category(response, messages.MESSAGES_CATEGORY)
+        answer_text = await make_answer(response, "category", messages.MESSAGES_CATEGORY)
         await message.answer(answer_text)
     else:
         await message.answer(messages.CATEGORY_WRONG_TYPE)
@@ -167,7 +125,7 @@ async def delete_category_confirm(message: Message, state: FSMContext):
     category_id = message.text.strip()
 
     response = await delete_category_api(token_key, category_id)
-    answer_text = await make_answer_category(response, messages.MESSAGES_CATEGORY)
+    answer_text = await make_answer(response, "category", messages.MESSAGES_CATEGORY)
     await message.answer(answer_text)
 
     await state.clear()
@@ -200,7 +158,7 @@ async def update_category_type(message: Message, state: FSMContext):
 
     json_data = {"name": category_name}
     response = await update_category_api(token_key, category_id, json_data)
-    answer_text = await make_answer_category(response, messages.MESSAGES_CATEGORY)
+    answer_text = await make_answer(response, "category", messages.MESSAGES_CATEGORY)
     await message.answer(answer_text)
 
     await state.clear()

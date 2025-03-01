@@ -1,4 +1,4 @@
-import json
+"""import json
 
 from aiogram import Router
 from aiogram.enums import ParseMode
@@ -191,3 +191,4 @@ async def list_operations(message: Message, state: FSMContext):
 #     await message.answer(answer_text)
 #
 #     await state.clear()
+"""

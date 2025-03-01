@@ -29,7 +29,7 @@ ACCOUNT_DELETED = "Счет успешно удален"
 ACCOUNT_UPDATED = "Счет успешно изменен"
 ACCOUNT_NOT_UPDATED = "Счет не был изменен"
 ACCOUNT_WRONG_BALANCE = "Неверный формат баланса"
-ACCOUNT_ALREADY_EXIST = "Счет с таким именем уже существует"
+ACCOUNT_ALREADY_EXISTS = "Счет с таким именем уже существует"
 ACCOUNT_NOT_FOUND = "Счет не найден"
 
 NO_CATEGORIES = "У вас нет категорий"
@@ -42,7 +42,7 @@ CATEGORY_UPDATED = "Категория успешно изменена"
 CATEGORY_NOT_UPDATED = "Категория не была изменена"
 CATEGORY_CANT_CHANGE = "Вы не можете изменить или удалить эту категорию"
 CATEGORY_WRONG_TYPE = "Неверный тип категории"
-CATEGORY_ALREADY_EXIST = "Категория с таким именем уже существует"
+CATEGORY_ALREADY_EXISTS = "Категория с таким именем уже существует"
 CATEGORY_NOT_FOUND = "Категория не найдена"
 
 NO_OPERATIONS = "У вас нет операций"
@@ -55,7 +55,7 @@ OPERATION_DELETED = "Операция успешно удалена"
 OPERATION_UPDATED = "Операция успешно изменена"
 OPERATION_NOT_UPDATED = "Операция не была изменена"
 OPERATION_WRONG_AMOUNT = "Неверный формат суммы"
-OPERATION_ALREADY_EXIST = "Операция с таким названием уже существует"
+OPERATION_ALREADY_EXISTS = "Операция с таким названием уже существует"
 OPERATION_NOT_FOUND = "Операция не найдена"
 
 MESSAGES_ACCOUNT = {
@@ -68,7 +68,7 @@ MESSAGES_ACCOUNT = {
     "updated": "Счет успешно изменен",
     "not_updated": "Счет не был изменен",
     "wrong_value": "Неверный формат баланса",
-    "already_exist": "Счет с таким именем уже существует",
+    "already_exists": "Счет с таким именем уже существует",
     "not_found": "Счет не найден"
 }
 
@@ -83,7 +83,7 @@ MESSAGES_CATEGORY = {
     "not_updated": "Категория не была изменена",
     "cant_change": "Вы не можете изменить или удалить эту категорию",
     "wrong_value": "Неверный тип категории",
-    "already_exist": "Категория с таким именем уже существует",
+    "already_exists": "Категория с таким именем уже существует",
     "not_found": "Категория не найдена"
 }
 
@@ -98,7 +98,7 @@ MESSAGES_OPERATION = {
     "updated": "Операция успешно изменена",
     "not_updated": "Операция не была изменена",
     "wrong_value": "Неверный формат суммы",
-    "already_exist": "Операция с таким названием уже существует",
+    "already_exists": "Операция с таким названием уже существует",
     "not_found": "Операция не найдена"
 }
 
