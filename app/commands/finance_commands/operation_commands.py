@@ -1,4 +1,4 @@
-"""import json
+import json
 
 from aiogram import Router
 from aiogram.enums import ParseMode
@@ -8,7 +8,7 @@ from aiogram.types import Message
 from aiogram.utils import markdown
 
 from finance_tg_bot import messages
-from finance_tg_bot.app.utils import token_key_if_exists, make_error_answer, get_type, get_readable_time
+from finance_tg_bot.app.utils import token_key_if_exists, make_error_answer, get_type, get_readable_time, make_answer
 from ...api_handlers.operation_api import (
     list_operations_api, create_operation_api, delete_operation_api, update_operation_api, get_recent_operations_api
 )
@@ -20,79 +20,6 @@ from ...api_handlers.operation_api import (
 router = Router()
 
 
-# ======== ANSWER MAKERS ===============================================================================
-
-async def make_answer_list_operations(response):
-    if type(response) == str:
-        return response
-
-    response_data = await response.json()
-    if response.status == 200:
-        operations = response_data.get("operations")
-        if operations:
-            answer_text = markdown.text(
-                "\n\n".join([
-                    markdown.text(
-                        f"<b>ID: {operation['id']} - {get_type(operation['type'])}: {operation['amount']}</b>\n",
-                        f"<i>{operation['description']}</i>\n" if operation['description'] else "",
-                        f"{get_readable_time(operation['date'])}\n",
-                        f"Категория ID: {operation['category']}\n",
-                        f"Аккаунт ID: {operation['account']}\n",
-                        "---------------------------------",
-                        sep=""
-                    ) for operation in operations],
-                ),
-                "\n",
-                f"Результат по операциям: {response_data.get("total_amount")}",
-                sep='\n'
-            )
-        else:
-            answer_text = messages.NO_OPERATIONS
-    else:
-        answer_text = make_error_answer(response_data)
-    return answer_text
-
-
-# async def make_answer_create_operation(response):
-#     if type(response) == str:
-#         return response
-#
-#     if response.status == 201:
-#         answer_text = messages.OPERATION_ADDED
-#     else:
-#         response_data = await response.json()
-#         answer_text = make_error_answer(response_data)
-#     return answer_text
-#
-#
-# async def make_answer_delete_operation(response):
-#     if type(response) == str:
-#         return response
-#
-#     if response.status == 204:
-#         answer_text = messages.OPERATION_DELETED
-#     elif response.status == 404:
-#         answer_text = messages.OPERATION_NOT_FOUND
-#     else:
-#         response_data = await response.json()
-#         answer_text = make_error_answer(response_data)
-#     return answer_text
-#
-#
-# async def make_answer_update_operation(response):
-#     if type(response) == str:
-#         return response
-#
-#     if response.status == 200:
-#         answer_text = messages.OPERATION_UPDATED
-#     elif response.status == 404:
-#         answer_text = messages.OPERATION_NOT_FOUND
-#     else:
-#         response_data = await response.json()
-#         answer_text = make_error_answer(response_data)
-#     return answer_text
-
-
 # ======== GET OPERATIONS ===============================================================================
 
 @router.message(Command("operations"))
@@ -100,7 +27,7 @@ async def list_operations(message: Message, state: FSMContext):
     token_key = await token_key_if_exists(message)
     if token_key:
         response = await list_operations_api(token_key, {})
-        answer_text = await make_answer_list_operations(response)
+        answer_text = await make_answer(response, "operation", messages.MESSAGES_OPERATION)
         await message.answer(answer_text, parse_mode=ParseMode.HTML)
 
 # # ======== CREATE OPERATION ===============================================================================
@@ -191,4 +118,3 @@ async def list_operations(message: Message, state: FSMContext):
 #     await message.answer(answer_text)
 #
 #     await state.clear()
-"""
