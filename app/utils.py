@@ -84,7 +84,7 @@ def get_str_item(item, item_class):
             f"<i>{item['description']}</i>\n" if item['description'] else "",
             f"{get_readable_time(item['date'])}\n",
             f"Категория ID: {item['category']}\n",
-            f"Аккаунт ID: {item['account']}\n",
+            f"Счет ID: {item['account']}\n",
             "---------------------------------",
             sep=""
         )
@@ -114,6 +114,7 @@ async def make_answer(response, item_class, messages_item):
             item = response_data
             answer_text = markdown.text(
                 messages_item["updated"],
+                "\n",
                 get_str_item(item, item_class),
                 sep="\n"
             )
@@ -125,6 +126,7 @@ async def make_answer(response, item_class, messages_item):
         item = response_data
         answer_text = markdown.text(
             messages_item["added"],
+            "\n",
             get_str_item(item, item_class),
             sep="\n"
         )

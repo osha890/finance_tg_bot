@@ -59,3 +59,11 @@ class GetOperationsState(StatesGroup):
     operation_date_before_get = State()
     operation_account_get = State()
     operation_category_get = State()
+
+
+class CreateOperationState(StatesGroup):
+    operation_type_create = State()
+    operation_amount_create = State()
+    operation_account_create = State()
+    operation_category_create = State()
+    operation_description_create = State()

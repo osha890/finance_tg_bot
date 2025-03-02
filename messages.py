@@ -20,7 +20,7 @@ REGISTER_ERROR = "Ошибка регистрации: {error}"
 USER_ALREADY_EXISTS = "Пользователь с таким именем уже существует"
 KEEP_YOUR_TOKEN = "<u><i>Сохраните ваш токен. Он может понадобиться для аутентификации</i></u>"
 
-NO_ACCOUNTS = "У вас нет счетов"
+NO_ACCOUNTS = "Нет счетов"
 ENTER_ACCOUNT_NAME = "Введите название счета"
 ENTER_ACCOUNT_BALANCE = "Введите баланс счета"
 ENTER_ACCOUNT_ID = "Введите ID счёта"
@@ -32,7 +32,7 @@ ACCOUNT_WRONG_BALANCE = "Неверный формат баланса"
 ACCOUNT_ALREADY_EXISTS = "Счет с таким именем уже существует"
 ACCOUNT_NOT_FOUND = "Счет не найден"
 
-NO_CATEGORIES = "У вас нет категорий"
+NO_CATEGORIES = "Нет категорий"
 ENTER_CATEGORY_NAME = "Введите название категории"
 ENTER_CATEGORY_ID = "Введите ID категории"
 ENTER_CATEGORY_TYPE = f"Введите тип категории ({EXPENSES}/{INCOMES})"
@@ -45,7 +45,7 @@ CATEGORY_WRONG_TYPE = "Неверный тип категории"
 CATEGORY_ALREADY_EXISTS = "Категория с таким именем уже существует"
 CATEGORY_NOT_FOUND = "Категория не найдена"
 
-NO_OPERATIONS = "У вас нет операций"
+NO_OPERATIONS = "Нет операций"
 ENTER_OPERATION_AMOUNT = "Введите сумму операции"
 ENTER_OPERATION_ID = "Введите ID операции"
 ENTER_OPERATION_TYPE = f"Введите тип операции ({EXPENSES}/{INCOMES})"
@@ -54,6 +54,7 @@ ENTER_OPERATION_DATE_AFTER = "Введите нижний порог даты в
 ENTER_OPERATION_DATE_BEFORE = "Введите верхний порог даты в формате ДД.ММ.ГГГГ"
 ENTER_OPERATION_ACCOUNT = "Введите счет операции"
 ENTER_OPERATION_CATEGORY = "Введите категорию операции"
+ENTER_OPERATION_DESCRIPTION = "Введите описание операции"
 OPERATION_WRONG_DATE = "Неверный формат даты"
 OPERATION_ADDED = "Операция успешно добавлена"
 OPERATION_DELETED = "Операция успешно удалена"
@@ -66,7 +67,7 @@ OPERATION_NOT_FOUND = "Операция не найдена"
 TOTAL_AMOUNT = "Результат по операциям"
 
 MESSAGES_ACCOUNT = {
-    "no_items": "У вас нет счетов",
+    "no_items": "Нет счетов",
     "added": "Счет успешно добавлен",
     "deleted": "Счет успешно удален",
     "updated": "Счет успешно изменен",
@@ -76,7 +77,7 @@ MESSAGES_ACCOUNT = {
 }
 
 MESSAGES_CATEGORY = {
-    "no_items": "У вас нет категорий",
+    "no_items": "Нет категорий",
     "added": "Категория успешно добавлена",
     "deleted": "Категория успешно удалена. Если к ней были прикреплены операции, они перенесены на дефолтные категории",
     "updated": "Категория успешно изменена",
@@ -87,7 +88,7 @@ MESSAGES_CATEGORY = {
 }
 
 MESSAGES_OPERATION = {
-    "no_items": "У вас нет операций",
+    "no_items": "Нет операций",
     "added": "Операция успешно добавлена",
     "deleted": "Операция успешно удалена",
     "updated": "Операция успешно изменена",

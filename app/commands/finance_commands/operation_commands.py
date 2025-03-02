@@ -16,7 +16,7 @@ from ...api_handlers.operation_api import (
 )
 
 from ...states import (
-    GetOperationsState
+    GetOperationsState, CreateOperationState
 )
 
 router = Router()
@@ -47,7 +47,6 @@ async def ask_for_date(message: Message, state: FSMContext):
         sep='\n'
     )
     await message.answer(text)
-    await state.set_state(GetOperationsState.operation_date_get)
 
 
 @router.message(GetOperationsState.operation_type_get)
@@ -60,6 +59,7 @@ async def create_operation_type(message: Message, state: FSMContext):
     else:
         pass
     await ask_for_date(message, state)
+    await state.set_state(GetOperationsState.operation_date_get)
 
 
 @router.message(GetOperationsState.operation_date_get)
@@ -162,39 +162,96 @@ async def create_operation_account(message: Message, state: FSMContext):
 
     await state.clear()
 
-# # ======== CREATE OPERATION ===============================================================================
-#
-# @router.message(Command("create_operation"))
-# async def create_operation(message: Message, state: FSMContext):
-#     token_key = await token_key_if_exists(message)
-#     if token_key:
-#         await state.update_data(token_key=token_key)
-#         await message.answer(messages.ENTER_OPERATION_AMOUNT)
-#         await state.set_state(CreateOperationState.amount_create)
-#
-#
-# @router.message(CreateOperationState.amount_create)
-# async def create_operation_amount(message: Message, state: FSMContext):
-#     await state.update_data(amount_create=message.text.strip())
-#     await message.answer(messages.ENTER_OPERATION_CATEGORY)
-#     await state.set_state(CreateOperationState.category_create)
-#
-#
-# @router.message(CreateOperationState.category_create)
-# async def create_operation_category(message: Message, state: FSMContext):
-#     state_data = await state.get_data()
-#     token_key = state_data.get("token_key")
-#     amount = state_data.get("amount_create")
-#     category = message.text.strip()
-#
-#     json_data = {"amount": amount, "category": category}
-#     response = await create_operation_api(token_key, json_data)
-#     answer_text = await make_answer_create_operation(response)
-#     await message.answer(answer_text)
-#
-#     await state.clear()
-#
-#
+
+# ======== CREATE OPERATION ===============================================================================
+
+@router.message(Command("create_operation"))
+async def create_operation(message: Message, state: FSMContext):
+    token_key = await token_key_if_exists(message)
+    if token_key:
+        await state.update_data(token_key=token_key)
+
+        await message.answer(messages.ENTER_OPERATION_TYPE)
+        await state.set_state(CreateOperationState.operation_type_create)
+
+
+@router.message(CreateOperationState.operation_type_create)
+async def create_operation_type(message: Message, state: FSMContext):
+    message_text = message.text.strip().lower()
+    types = [messages.INCOMES.lower(), messages.EXPENSES.lower()]
+    if message_text in types:
+        operation_type = "income" if message_text == types[0] else "expense"
+        await state.update_data(operation_type_create=operation_type)
+
+        await message.answer(messages.ENTER_OPERATION_AMOUNT)
+        await state.set_state(CreateOperationState.operation_amount_create)
+    else:
+        await message.answer(messages.OPERATION_WRONG_TYPE)
+
+
+@router.message(CreateOperationState.operation_amount_create)
+async def create_operation_amount(message: Message, state: FSMContext):
+    try:
+        amount = float(message.text.strip())
+        if amount <= 0:
+            raise ValueError
+        await state.update_data(operation_amount_create=amount)
+
+        await message.answer(messages.ENTER_OPERATION_ACCOUNT)
+        await state.set_state(CreateOperationState.operation_account_create)
+    except ValueError:
+        await message.answer(messages.OPERATION_WRONG_AMOUNT)
+
+
+@router.message(CreateOperationState.operation_account_create)
+async def create_operation_account(message: Message, state: FSMContext):
+    await state.update_data(operation_account_create=message.text.strip())
+
+    await message.answer(messages.ENTER_OPERATION_CATEGORY)
+    await state.set_state(CreateOperationState.operation_category_create)
+
+
+@router.message(CreateOperationState.operation_category_create)
+async def create_operation_category(message: Message, state: FSMContext):
+    await state.update_data(operation_category_create=message.text.strip())
+
+    text = markdown.text(
+        messages.ENTER_OPERATION_DESCRIPTION,
+        '\n',
+        messages.SKIP_MESSAGE,
+        sep='\n'
+    )
+    await message.answer(text)
+    await state.set_state(CreateOperationState.operation_description_create)
+
+
+@router.message(CreateOperationState.operation_description_create)
+async def create_operation_description(message: Message, state: FSMContext):
+    message_text = message.text.strip()
+    state_data = await state.get_data()
+    token_key = state_data.get("token_key")
+    operation_type = state_data.get("operation_type_create")
+    amount = state_data.get("operation_amount_create")
+    account = state_data.get("operation_account_create")
+    category = state_data.get("operation_category_create")
+    description = message_text if message_text.lower() != messages.SKIP.lower() else None
+
+    json_data = {
+        "type": operation_type,
+        "amount": amount,
+        "account": account,
+        "category": category,
+        "description": description
+    }
+
+    pprint(json_data)
+    response = await create_operation_api(token_key, json_data)
+    answer_text = await make_answer(response, "operation", messages.MESSAGES_OPERATION)
+    await message.answer(answer_text, parse_mode=ParseMode.HTML)
+
+    await state.clear()
+
+
 # # ======== DELETE OPERATION ===============================================================================
 #
 # @router.message(Command("delete_operation"))
