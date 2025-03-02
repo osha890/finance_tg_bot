@@ -55,6 +55,7 @@ ENTER_OPERATION_DATE_BEFORE = "Введите верхний порог даты
 ENTER_OPERATION_ACCOUNT = "Введите счет операции"
 ENTER_OPERATION_CATEGORY = "Введите категорию операции"
 ENTER_OPERATION_DESCRIPTION = "Введите описание операции"
+ENTER_OPERATIONS_COUNT = "Введите количество операций"
 OPERATION_WRONG_DATE = "Неверный формат даты"
 OPERATION_ADDED = "Операция успешно добавлена"
 OPERATION_DELETED = "Операция успешно удалена"
@@ -100,3 +101,6 @@ MESSAGES_OPERATION = {
 API_CONNECTION_ERROR = "Отсутствует соединение с API. Попробуйте позже"
 SKIP = "Далее"
 SKIP_MESSAGE = f"Если хотите пропустить этот шаг, отправьте '{SKIP}'"
+
+
+WRONG_VALUE = "Неверный формат"

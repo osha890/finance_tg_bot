@@ -16,7 +16,7 @@ from ...api_handlers.operation_api import (
 )
 
 from ...states import (
-    GetOperationsState, CreateOperationState, DeleteOperationState, UpdateOperationState
+    GetOperationsState, CreateOperationState, DeleteOperationState, UpdateOperationState, RecentOperationsState
 )
 
 router = Router()
@@ -39,7 +39,7 @@ async def list_operations(message: Message, state: FSMContext):
         await state.set_state(GetOperationsState.operation_type_get)
 
 
-async def ask_for_date(message: Message, state: FSMContext):
+async def ask_for_date(message: Message):
     text = markdown.text(
         messages.ENTER_OPERATION_DATE,
         '\n',
@@ -386,5 +386,62 @@ async def update_operation_description(message: Message, state: FSMContext):
         await message.answer(answer_text)
     else:
         await message.answer(messages.OPERATION_NOT_UPDATED)
+
+    await state.clear()
+
+
+# ======== RECENT OPERATIONS ===============================================================================
+
+@router.message(Command("recent_operations"))
+async def recent_operations(message: Message, state: FSMContext):
+    token_key = await token_key_if_exists(message)
+    if token_key:
+        await state.update_data(token_key=token_key)
+        text = markdown.text(
+            messages.ENTER_OPERATION_TYPE,
+            '\n',
+            messages.SKIP_MESSAGE,
+            sep='\n'
+        )
+        await message.answer(text)
+        await state.set_state(RecentOperationsState.operation_type_recent)
+
+
+@router.message(RecentOperationsState.operation_type_recent)
+async def recent_operations_type(message: Message, state: FSMContext):
+    message_text = message.text.strip()
+    if message_text.lower() != messages.SKIP.lower():
+        types = [messages.INCOMES.lower(), messages.EXPENSES.lower()]
+        if message_text in types:
+            operation_type = "income" if message_text == types[0] else "expense"
+            await state.update_data(operation_type_recent=operation_type)
+
+    await message.answer(messages.ENTER_OPERATIONS_COUNT)
+    await state.set_state(RecentOperationsState.operations_count_recent)
+
+
+@router.message(RecentOperationsState.operations_count_recent)
+async def recent_operations_count(message: Message, state: FSMContext):
+    state_data = await state.get_data()
+    token_key = state_data.get("token_key")
+    operation_type = state_data.get("operation_type_recent")
+
+    try:
+        operations_count = int(message.text.strip())
+    except ValueError:
+        await message.answer(messages.WRONG_VALUE)
+        return
+
+    json_data = {
+        "count": operations_count
+    }
+
+    if operation_type:
+        json_data["type"] = operation_type.lower()
+
+
+    response = await get_recent_operations_api(token_key, json_data)
+    answer_text = await make_answer(response, "operation", messages.MESSAGES_OPERATION)
+    await message.answer(answer_text, parse_mode=ParseMode.HTML)
 
     await state.clear()
