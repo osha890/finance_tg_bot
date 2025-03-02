@@ -74,14 +74,13 @@ class DeleteOperationState(StatesGroup):
 
 
 class UpdateOperationState(StatesGroup):
-    operation_id_delete = State()
-    operation_type_create = State()
-    operation_amount_create = State()
-    operation_account_create = State()
-    operation_category_create = State()
-    operation_description_create = State()
+    operation_id_update = State()
+    operation_amount_update = State()
+    operation_account_update = State()
+    operation_category_update = State()
+    operation_description_update = State()
 
 
 class RecentOperationsState(StatesGroup):
-    operation_type_create = State()
-    operations_count_create = State()
+    operation_type_recent = State()
+    operations_count_recent = State()

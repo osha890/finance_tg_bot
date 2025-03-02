@@ -16,7 +16,7 @@ from ...api_handlers.operation_api import (
 )
 
 from ...states import (
-    GetOperationsState, CreateOperationState, DeleteOperationState
+    GetOperationsState, CreateOperationState, DeleteOperationState, UpdateOperationState
 )
 
 router = Router()
@@ -276,34 +276,115 @@ async def delete_operation_confirm(message: Message, state: FSMContext):
     await state.clear()
 
 
-# # ======== UPDATE OPERATION ===============================================================================
-#
-# @router.message(Command("update_operation"))
-# async def update_operation(message: Message, state: FSMContext):
-#     token_key = await token_key_if_exists(message)
-#     if token_key:
-#         await state.update_data(token_key=token_key)
-#         await message.answer(messages.ENTER_OPERATION_ID)
-#         await state.set_state(UpdateOperationState.operation_id_update)
-#
-#
-# @router.message(UpdateOperationState.operation_id_update)
-# async def update_operation_amount(message: Message, state: FSMContext):
-#     await state.update_data(operation_id_update=message.text.strip())
-#     await message.answer(messages.ENTER_OPERATION_AMOUNT)
-#     await state.set_state(UpdateOperationState.amount_update)
-#
-#
-# @router.message(UpdateOperationState.amount_update)
-# async def update_operation_category(message: Message, state: FSMContext):
-#     state_data = await state.get_data()
-#     token_key = state_data.get("token_key")
-#     operation_id = state_data.get("operation_id_update")
-#     amount = message.text.strip()
-#
-#     json_data = {"amount": amount}
-#     response = await update_operation_api(token_key, operation_id, json_data)
-#     answer_text = await make_answer_update_operation(response)
-#     await message.answer(answer_text)
-#
-#     await state.clear()
+# ======== UPDATE OPERATION ===============================================================================
+
+@router.message(Command("update_operation"))
+async def update_operation(message: Message, state: FSMContext):
+    token_key = await token_key_if_exists(message)
+    if token_key:
+        await state.update_data(token_key=token_key)
+        await message.answer(messages.ENTER_OPERATION_ID)
+        await state.set_state(UpdateOperationState.operation_id_update)
+
+
+@router.message(UpdateOperationState.operation_id_update)
+async def update_operation_id(message: Message, state: FSMContext):
+    await state.update_data(operation_id_update=message.text.strip())
+
+    text = markdown.text(
+        messages.ENTER_OPERATION_AMOUNT,
+        '\n',
+        messages.SKIP_MESSAGE,
+        sep='\n'
+    )
+    await message.answer(text)
+    await state.set_state(UpdateOperationState.operation_amount_update)
+
+
+@router.message(UpdateOperationState.operation_amount_update)
+async def update_operation_amount(message: Message, state: FSMContext):
+    message_text = message.text.strip()
+    if message_text.lower() != messages.SKIP.lower():
+        try:
+            amount = float(message_text)
+            await state.update_data(operation_amount_update=amount)
+        except ValueError:
+            await message.answer(messages.OPERATION_WRONG_AMOUNT)
+            return
+
+    text = markdown.text(
+        messages.ENTER_OPERATION_ACCOUNT,
+        '\n',
+        messages.SKIP_MESSAGE,
+        sep='\n'
+    )
+    await message.answer(text)
+    await state.set_state(UpdateOperationState.operation_account_update)
+
+
+@router.message(UpdateOperationState.operation_account_update)
+async def update_operation_account(message: Message, state: FSMContext):
+    message_text = message.text.strip()
+    if message_text.lower() != messages.SKIP.lower():
+        await state.update_data(operation_account_update=message_text)
+
+    text = markdown.text(
+        messages.ENTER_OPERATION_CATEGORY,
+        '\n',
+        messages.SKIP_MESSAGE,
+        sep='\n'
+    )
+    await message.answer(text)
+    await state.set_state(UpdateOperationState.operation_category_update)
+
+
+@router.message(UpdateOperationState.operation_category_update)
+async def update_operation_category(message: Message, state: FSMContext):
+    message_text = message.text.strip()
+    if message_text.lower() != messages.SKIP.lower():
+        await state.update_data(operation_category_update=message_text)
+
+    text = markdown.text(
+        messages.ENTER_OPERATION_DESCRIPTION,
+        '\n',
+        messages.SKIP_MESSAGE,
+        sep='\n'
+    )
+    await message.answer(text)
+    await state.set_state(UpdateOperationState.operation_description_update)
+
+
+@router.message(UpdateOperationState.operation_description_update)
+async def update_operation_description(message: Message, state: FSMContext):
+    state_data = await state.get_data()
+    token_key = state_data.get("token_key")
+    operation_id = state_data.get("operation_id_update")
+    amount = state_data.get("operation_amount_update")
+    account = state_data.get("operation_account_update")
+    category = state_data.get("operation_category_update")
+    message_text = message.text.strip()
+    if message_text.lower() != messages.SKIP.lower():
+        description = message_text
+    else:
+        description = None
+
+    json_data = {}
+    if amount:
+        json_data["amount"] = amount
+    if account:
+        json_data["account"] = account
+    if category:
+        json_data["category"] = category
+    if description is not None:
+        json_data["description"] = description
+
+    pprint(json_data)
+
+    if json_data:
+        response = await update_operation_api(token_key, operation_id, json_data)
+        answer_text = await make_answer(response, "operation", messages.MESSAGES_OPERATION)
+        await message.answer(answer_text)
+    else:
+        await message.answer(messages.OPERATION_NOT_UPDATED)
+
+    await state.clear()

@@ -101,7 +101,8 @@ async def make_answer(response, item_class, messages_item):
     if rs == 200:
         response_data = await response.json()
 
-        if (response_data and type(response_data) == list) or len(response_data.get("operations")) != 0:
+        if ((response_data and type(response_data) == list)
+                or (response_data.get("operations") and len(response_data.get("operations")) != 0)):
             if item_class == "operation":
                 items = response_data.get("operations")
             else:
