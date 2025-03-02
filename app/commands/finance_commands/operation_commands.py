@@ -16,7 +16,7 @@ from ...api_handlers.operation_api import (
 )
 
 from ...states import (
-    GetOperationsState, CreateOperationState
+    GetOperationsState, CreateOperationState, DeleteOperationState
 )
 
 router = Router()
@@ -252,30 +252,30 @@ async def create_operation_description(message: Message, state: FSMContext):
     await state.clear()
 
 
-# # ======== DELETE OPERATION ===============================================================================
-#
-# @router.message(Command("delete_operation"))
-# async def delete_operation(message: Message, state: FSMContext):
-#     token_key = await token_key_if_exists(message)
-#     if token_key:
-#         await state.update_data(token_key=token_key)
-#         await message.answer(messages.ENTER_OPERATION_ID)
-#         await state.set_state(DeleteOperationState.operation_id_delete)
-#
-#
-# @router.message(DeleteOperationState.operation_id_delete)
-# async def delete_operation_confirm(message: Message, state: FSMContext):
-#     state_data = await state.get_data()
-#     token_key = state_data.get("token_key")
-#     operation_id = message.text.strip()
-#
-#     response = await delete_operation_api(token_key, operation_id)
-#     answer_text = await make_answer_delete_operation(response)
-#     await message.answer(answer_text)
-#
-#     await state.clear()
-#
-#
+# ======== DELETE OPERATION ===============================================================================
+
+@router.message(Command("delete_operation"))
+async def delete_operation(message: Message, state: FSMContext):
+    token_key = await token_key_if_exists(message)
+    if token_key:
+        await state.update_data(token_key=token_key)
+        await message.answer(messages.ENTER_OPERATION_ID)
+        await state.set_state(DeleteOperationState.operation_id_delete)
+
+
+@router.message(DeleteOperationState.operation_id_delete)
+async def delete_operation_confirm(message: Message, state: FSMContext):
+    state_data = await state.get_data()
+    token_key = state_data.get("token_key")
+    operation_id = message.text.strip()
+
+    response = await delete_operation_api(token_key, operation_id)
+    answer_text = await make_answer(response, "operation", messages.MESSAGES_OPERATION)
+    await message.answer(answer_text)
+
+    await state.clear()
+
+
 # # ======== UPDATE OPERATION ===============================================================================
 #
 # @router.message(Command("update_operation"))

@@ -67,3 +67,21 @@ class CreateOperationState(StatesGroup):
     operation_account_create = State()
     operation_category_create = State()
     operation_description_create = State()
+
+
+class DeleteOperationState(StatesGroup):
+    operation_id_delete = State()
+
+
+class UpdateOperationState(StatesGroup):
+    operation_id_delete = State()
+    operation_type_create = State()
+    operation_amount_create = State()
+    operation_account_create = State()
+    operation_category_create = State()
+    operation_description_create = State()
+
+
+class RecentOperationsState(StatesGroup):
+    operation_type_create = State()
+    operations_count_create = State()
