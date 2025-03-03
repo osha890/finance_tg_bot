@@ -1,5 +1,12 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
+from finance_tg_bot import messages
+
+get_back = "К списку действий"
+cancel = "Отмена"
+
+
+# ===================================================
 
 class StartKBBs:
     enter_token = "Добавить токен"
@@ -17,18 +24,20 @@ start_keyboard = ReplyKeyboardMarkup(
     resize_keyboard=True
 )
 
-
 # ===================================================
 
-class ClearStateKBBs:
-    cancel = "Отмена"
-
-
-cancel_button_row = [KeyboardButton(text=ClearStateKBBs.cancel)]
 
 cancel_keyboard = ReplyKeyboardMarkup(
     keyboard=[
-        cancel_button_row
+        [KeyboardButton(text=cancel)],
+    ],
+    resize_keyboard=True
+)
+
+skip_and_cancel_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text=messages.SKIP)],
+        [KeyboardButton(text=cancel)],
     ],
     resize_keyboard=True
 )
@@ -41,11 +50,33 @@ class ChoseActionKBBs:
     accounts = "Счета"
     categories = "Категории"
 
+
 chose_action_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text=ChoseActionKBBs.operations)],
         [KeyboardButton(text=ChoseActionKBBs.accounts)],
         [KeyboardButton(text=ChoseActionKBBs.categories)],
+    ],
+    resize_keyboard=True
+)
+
+
+# ===================================================
+
+class AccountKBs:
+    get_accounts = "Показать счета"
+    create_account = "Добавить счет"
+    delete_account = "Удалить счет"
+    update_account = "Изменить счет"
+
+
+account_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text=AccountKBs.get_accounts)],
+        [KeyboardButton(text=AccountKBs.create_account)],
+        [KeyboardButton(text=AccountKBs.delete_account)],
+        [KeyboardButton(text=AccountKBs.update_account)],
+        [KeyboardButton(text=get_back)],
     ],
     resize_keyboard=True
 )

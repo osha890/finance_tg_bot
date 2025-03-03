@@ -101,16 +101,17 @@ async def make_answer(response, item_class, messages_item):
     if rs == 200:
         response_data = await response.json()
 
-        if ((response_data and type(response_data) == list)
-                or (response_data.get("operations") and len(response_data.get("operations")) != 0)):
-            if item_class == "operation":
-                items = response_data.get("operations")
-            else:
-                items = response_data
+        if response_data and type(response_data) == list:
+            items = response_data
             answer_text = "\n".join(
-                [get_str_item(item, item_class) for item in items])
-            if item_class == "operation":
-                answer_text += f"\n\n{messages.TOTAL_AMOUNT}: {response_data.get("total_amount")}"
+                [get_str_item(item, item_class) for item in items]
+            )
+        elif type(response_data) == dict and "operations" in response_data:
+            items = response_data.get("operations")
+            answer_text = "\n".join(
+                [get_str_item(item, item_class) for item in items]
+            )
+            answer_text += f"\n\n{messages.TOTAL_AMOUNT}: {response_data.get("total_amount")}"
         elif type(response_data) == dict and "operations" not in response_data:
             item = response_data
             answer_text = markdown.text(
@@ -141,3 +142,12 @@ async def make_answer(response, item_class, messages_item):
     else:
         answer_text = make_error_answer(await response.json(), messages_item)
     return answer_text
+
+
+def create_message_w_skip(message_text):
+    return  markdown.text(
+        message_text,
+        '\n',
+        messages.SKIP_MESSAGE,
+        sep='\n'
+    )

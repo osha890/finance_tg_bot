@@ -6,12 +6,15 @@ from aiogram.utils import markdown
 
 from finance_tg_bot import messages
 from finance_tg_bot.app.keyboards.common_keyboards import (
-    ClearStateKBBs,
-    StartKBBs
-)
-from finance_tg_bot.app.keyboards.common_keyboards import (
+    cancel,
+    get_back,
+
+    StartKBBs,
+    ChoseActionKBBs,
+
     start_keyboard,
-    chose_action_keyboard
+    chose_action_keyboard,
+    account_keyboard,
 )
 
 router = Router()
@@ -30,16 +33,24 @@ async def start_cmd(message: Message):
     )
 
 
+@router.message(F.text == get_back)
 @router.message(F.text == StartKBBs.get_started)
-async def clear_state(message: Message, state: FSMContext):
-    await state.clear()
+async def chose_action(message: Message):
     await message.answer(
         messages.CHOSE_ACTION,
         reply_markup=chose_action_keyboard
     )
 
 
-@router.message(F.text == ClearStateKBBs.cancel)
+@router.message(F.text == ChoseActionKBBs.accounts)
+async def work_w_accounts(message: Message):
+    await  message.answer(
+        message.text,
+        reply_markup=account_keyboard,
+    )
+
+
+@router.message(F.text == cancel)
 async def clear_state(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
