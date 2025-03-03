@@ -13,7 +13,8 @@ from finance_tg_bot.app.commands.finance_commands.operation_commands import rout
 from finance_tg_bot.session import get_session, close_session
 
 logging.basicConfig(level=logging.INFO)
-bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot = Bot(token=TOKEN)
+bot.default = DefaultBotProperties(parse_mode=ParseMode.HTML)
 dp = Dispatcher()
 
 dp.include_routers(base_cmd_router,

@@ -1,22 +1,31 @@
-import json
-
 from pprint import pprint
 from aiogram import Router
-from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.utils import markdown
 
 from finance_tg_bot import messages
-from finance_tg_bot.app.utils import token_key_if_exists, make_error_answer, get_type, get_readable_time, make_answer, \
+from finance_tg_bot.app.utils import (
+    token_key_if_exists,
+    make_answer,
     get_iso_date
+)
+
 from ...api_handlers.operation_api import (
-    list_operations_api, create_operation_api, delete_operation_api, update_operation_api, get_recent_operations_api
+    list_operations_api,
+    create_operation_api,
+    delete_operation_api,
+    update_operation_api,
+    get_recent_operations_api
 )
 
 from ...states import (
-    GetOperationsState, CreateOperationState, DeleteOperationState, UpdateOperationState, RecentOperationsState
+    GetOperationsState,
+    CreateOperationState,
+    DeleteOperationState,
+    UpdateOperationState,
+    RecentOperationsState
 )
 
 router = Router()
@@ -58,7 +67,7 @@ async def create_operation_type(message: Message, state: FSMContext):
         await state.update_data(operation_type_get="expense")
     else:
         pass
-    await ask_for_date(message, state)
+    await ask_for_date(message)
     await state.set_state(GetOperationsState.operation_date_get)
 
 
@@ -88,7 +97,7 @@ async def create_operation_date(message: Message, state: FSMContext):
             await state.set_state(GetOperationsState.operation_account_get)
         else:
             await message.answer(messages.OPERATION_WRONG_DATE)
-            await ask_for_date(message, state)
+            await ask_for_date(message)
 
 
 @router.message(GetOperationsState.operation_date_after_get)
@@ -158,7 +167,7 @@ async def create_operation_account(message: Message, state: FSMContext):
     response = await list_operations_api(token_key, params)
     answer_text = await make_answer(response, "operation", messages.MESSAGES_OPERATION)
 
-    await message.answer(answer_text, parse_mode=ParseMode.HTML)
+    await message.answer(answer_text)
 
     await state.clear()
 
@@ -247,7 +256,7 @@ async def create_operation_description(message: Message, state: FSMContext):
     pprint(json_data)
     response = await create_operation_api(token_key, json_data)
     answer_text = await make_answer(response, "operation", messages.MESSAGES_OPERATION)
-    await message.answer(answer_text, parse_mode=ParseMode.HTML)
+    await message.answer(answer_text)
 
     await state.clear()
 
@@ -442,6 +451,6 @@ async def recent_operations_count(message: Message, state: FSMContext):
 
     response = await get_recent_operations_api(token_key, json_data)
     answer_text = await make_answer(response, "operation", messages.MESSAGES_OPERATION)
-    await message.answer(answer_text, parse_mode=ParseMode.HTML)
+    await message.answer(answer_text)
 
     await state.clear()

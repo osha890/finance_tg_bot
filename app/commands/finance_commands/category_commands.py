@@ -7,14 +7,19 @@ from aiogram.utils import markdown
 from finance_tg_bot import messages
 from finance_tg_bot.app.utils import token_key_if_exists, make_answer
 
-from ...api_handlers.category_api import (list_categories_api,
-                                          create_category_api,
-                                          delete_category_api,
-                                          update_category_api)
-from ...states import (GetCategoriesState,
-                       CreateCategoryState,
-                       DeleteCategoryState,
-                       UpdateCategoryState)
+from ...api_handlers.category_api import (
+    list_categories_api,
+    create_category_api,
+    delete_category_api,
+    update_category_api
+)
+
+from ...states import (
+    GetCategoriesState,
+   CreateCategoryState,
+   DeleteCategoryState,
+   UpdateCategoryState
+)
 
 router = Router()
 
