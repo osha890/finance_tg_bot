@@ -8,14 +8,26 @@ from finance_tg_bot.database.db_settings import get_db
 from finance_tg_bot.database.crud import save_token, get_token
 
 from ..keyboards.common_keyboards import (
-    StartKeyboard,
+    StartKBBs,
     cancel_keyboard,
-    start_keyboard
+    chose_action_keyboard,
 )
 from ..api_handlers.user_api import register_api
 from ..states import RegisterState, TokenState
 
 router = Router()
+
+
+def get_answer_with_chose_action(message_text):
+    return {
+        "text": markdown.text(
+            message_text,
+            "\n",
+            messages.CHOSE_ACTION,
+            sep="\n",
+        ),
+        "reply_markup": chose_action_keyboard
+    }
 
 
 # ======== ANSWER MAKERS =================================================================
@@ -50,7 +62,7 @@ async def make_answer_register(response, user_id):
 
 # ======== TOKEN =================================================================
 
-@router.message(F.text == StartKeyboard.enter_token)
+@router.message(F.text == StartKBBs.enter_token)
 async def set_token_cmd(message: Message, state: FSMContext):
     await message.answer(
         messages.ENTER_TOKEN,
@@ -65,10 +77,7 @@ async def set_token(message: Message, state: FSMContext):
     user_id = message.from_user.id
     with get_db() as db:
         save_token(db, user_id, token_key)
-    await message.answer(
-        messages.TOKEN_SAVED,
-        reply_markup=start_keyboard
-    )
+    await message.answer(**get_answer_with_chose_action(messages.TOKEN_SAVED))
     await state.clear()
 
 
@@ -93,7 +102,7 @@ async def get_token_or_notice(message: Message):
     await message.answer(text)
 
 
-@router.message(F.text == StartKeyboard.my_token)
+@router.message(F.text == StartKBBs.my_token)
 async def set_token_cmd(message: Message):
     await get_token_or_notice(message)
 
@@ -110,17 +119,17 @@ async def token_cmd(message: Message):
         with get_db() as db:
             save_token(db, user_id, key)
 
-        await message.answer(messages.TOKEN_SAVED)
+        await message.answer(**get_answer_with_chose_action(messages.TOKEN_SAVED))
 
 
 # ======== REGISTER =================================================================
 
-@router.message(F.text == StartKeyboard.register)
+@router.message(F.text == StartKBBs.register)
 @router.message(Command("register"))
 async def register_cmd(message: Message, state: FSMContext):
     await message.answer(
         messages.ENTER_USERNAME,
-        reply_markup = cancel_keyboard
+        reply_markup=cancel_keyboard
     )
     await state.set_state(RegisterState.username)
 
@@ -141,6 +150,6 @@ async def register_password(message: Message, state: FSMContext):
 
     response = await register_api(json_data)
     answer_text = await make_answer_register(response, message.from_user.id)
-    await message.answer(answer_text, reply_markup=start_keyboard)
+    await message.answer(**get_answer_with_chose_action(answer_text))
 
     await state.clear()
