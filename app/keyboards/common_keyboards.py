@@ -128,3 +128,24 @@ category_keyboard = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+
+# ===================================================
+
+class OperationKBBs:
+    get_operations = "Показать операции"
+    get_recent_operation = "Показать недавние операции"
+    create_operation = "Добавить операцию"
+    delete_operation = "Удалить операцию"
+    update_operation = "Изменить операцию"
+
+operation_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text=OperationKBBs.get_operations)],
+        [KeyboardButton(text=OperationKBBs.get_recent_operation)],
+        [KeyboardButton(text=OperationKBBs.create_operation)],
+        [KeyboardButton(text=OperationKBBs.delete_operation)],
+        [KeyboardButton(text=OperationKBBs.update_operation)],
+        [KeyboardButton(text=get_back)],
+    ]
+)

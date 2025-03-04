@@ -17,6 +17,7 @@ from finance_tg_bot.app.keyboards.common_keyboards import (
     chose_action_keyboard,
     account_keyboard,
     category_keyboard,
+    operation_keyboard,
 )
 
 router = Router()
@@ -64,6 +65,13 @@ async def work_w_categories(message: Message):
     await  message.answer(
         message.text,
         reply_markup=category_keyboard,
+    )
+
+@router.message(F.text == ChoseActionKBBs.operations)
+async def work_w_operations(message: Message):
+    await  message.answer(
+        message.text,
+        reply_markup=operation_keyboard,
     )
 
 

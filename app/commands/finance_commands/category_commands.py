@@ -4,7 +4,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from finance_tg_bot import messages
-from ...utils import token_key_if_exists, make_answer, ask_for_id, get_id_if_valid
+from ...utils import (
+    token_key_if_exists,
+    make_answer,
+    ask_for_id,
+    get_id_if_valid)
 
 from ...api_handlers.category_api import (
     list_categories_api,
