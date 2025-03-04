@@ -4,6 +4,7 @@ from finance_tg_bot import messages
 
 get_back = "К списку действий"
 cancel = "Отмена"
+help_request = "Помощь"
 
 
 # ===================================================
@@ -20,6 +21,7 @@ start_keyboard = ReplyKeyboardMarkup(
         [KeyboardButton(text=StartKBBs.enter_token), KeyboardButton(text=StartKBBs.my_token)],
         [KeyboardButton(text=StartKBBs.register)],
         [KeyboardButton(text=StartKBBs.get_started)],
+        [KeyboardButton(text=help_request)],
     ],
     resize_keyboard=True
 )
@@ -45,6 +47,30 @@ skip_and_cancel_keyboard = ReplyKeyboardMarkup(
 
 # ===================================================
 
+class TypeKBBs:
+    expense = "Расходы"
+    income = "Доходы"
+    all_types = "Все"
+
+types_optional_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text=TypeKBBs.expense), KeyboardButton(text=TypeKBBs.income)],
+        [KeyboardButton(text=TypeKBBs.all_types)],
+        [KeyboardButton(text=cancel)],
+    ],
+    resize_keyboard=True
+)
+
+types_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text=TypeKBBs.expense), KeyboardButton(text=TypeKBBs.income)],
+        [KeyboardButton(text=cancel)],
+    ],
+    resize_keyboard=True
+)
+
+# ===================================================
+
 class ChoseActionKBBs:
     operations = "Операции"
     accounts = "Счета"
@@ -56,6 +82,7 @@ chose_action_keyboard = ReplyKeyboardMarkup(
         [KeyboardButton(text=ChoseActionKBBs.operations)],
         [KeyboardButton(text=ChoseActionKBBs.accounts)],
         [KeyboardButton(text=ChoseActionKBBs.categories)],
+        [KeyboardButton(text=help_request)],
     ],
     resize_keyboard=True
 )
@@ -63,7 +90,7 @@ chose_action_keyboard = ReplyKeyboardMarkup(
 
 # ===================================================
 
-class AccountKBs:
+class AccountKBBs:
     get_accounts = "Показать счета"
     create_account = "Добавить счет"
     delete_account = "Удалить счет"
@@ -72,10 +99,31 @@ class AccountKBs:
 
 account_keyboard = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text=AccountKBs.get_accounts)],
-        [KeyboardButton(text=AccountKBs.create_account)],
-        [KeyboardButton(text=AccountKBs.delete_account)],
-        [KeyboardButton(text=AccountKBs.update_account)],
+        [KeyboardButton(text=AccountKBBs.get_accounts)],
+        [KeyboardButton(text=AccountKBBs.create_account)],
+        [KeyboardButton(text=AccountKBBs.delete_account)],
+        [KeyboardButton(text=AccountKBBs.update_account)],
+        [KeyboardButton(text=get_back)],
+    ],
+    resize_keyboard=True
+)
+
+
+# ===================================================
+
+class CategoryKBBs:
+    get_categories = "Показать категории"
+    create_category = "Добавить категорию"
+    delete_category = "Удалить категорию"
+    update_category = "Изменить категорию"
+
+
+category_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text=CategoryKBBs.get_categories)],
+        [KeyboardButton(text=CategoryKBBs.create_category)],
+        [KeyboardButton(text=CategoryKBBs.delete_category)],
+        [KeyboardButton(text=CategoryKBBs.update_category)],
         [KeyboardButton(text=get_back)],
     ],
     resize_keyboard=True

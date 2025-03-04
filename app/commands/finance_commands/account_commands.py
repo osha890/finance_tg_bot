@@ -2,20 +2,23 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from aiogram.utils import markdown
 
 from finance_tg_bot import messages
 
-from ...utils import token_key_if_exists, make_answer, create_message_w_skip
+from ...utils import token_key_if_exists, make_answer, create_message_w_skip, get_id_if_valid
 from ...api_handlers.account_api import (
     list_accounts_api,
     create_account_api,
     delete_account_api,
     update_account_api
 )
-from ...states import CreateAccountState, DeleteAccountState, UpdateAccountState
+from ...states import (
+    CreateAccountState,
+    DeleteAccountState,
+    UpdateAccountState
+)
 from ...keyboards.common_keyboards import (
-    AccountKBs,
+    AccountKBBs,
 
     cancel_keyboard,
     skip_and_cancel_keyboard,
@@ -27,7 +30,7 @@ router = Router()
 
 # ======== GET ACCOUNTS ===============================================================================
 
-@router.message(F.text == AccountKBs.get_accounts)
+@router.message(F.text == AccountKBBs.get_accounts)
 @router.message(Command("accounts"))
 async def list_accounts(message: Message):
     token_key = await token_key_if_exists(message)
@@ -39,7 +42,7 @@ async def list_accounts(message: Message):
 
 # ======== CREATE ACCOUNT ===============================================================================
 
-@router.message(F.text == AccountKBs.create_account)
+@router.message(F.text == AccountKBBs.create_account)
 @router.message(Command("create_account"))
 async def create_accounts(message: Message, state: FSMContext):
     token_key = await token_key_if_exists(message)
@@ -76,7 +79,7 @@ async def set_account_balance(message: Message, state: FSMContext):
 
 # ======== DELETE ACCOUNT ===============================================================================
 
-@router.message(F.text == AccountKBs.delete_account)
+@router.message(F.text == AccountKBBs.delete_account)
 @router.message(Command("delete_account"))
 async def delete_account(message: Message, state: FSMContext):
     token_key = await token_key_if_exists(message)
@@ -91,7 +94,11 @@ async def delete_account(message: Message, state: FSMContext):
     state_data = await state.get_data()
     token_key = state_data.get("token_key")
 
-    response = await delete_account_api(token_key, message.text.strip())
+    category_id = await get_id_if_valid(message)
+    if not category_id:
+        return
+
+    response = await delete_account_api(token_key, category_id)
     answer_text = await make_answer(response, "account", messages.MESSAGES_ACCOUNT)
     await message.answer(answer_text, reply_markup=account_keyboard)
 
@@ -100,7 +107,7 @@ async def delete_account(message: Message, state: FSMContext):
 
 # ======== UPDATE ACCOUNT ===============================================================================
 
-@router.message(F.text == AccountKBs.update_account)
+@router.message(F.text == AccountKBBs.update_account)
 @router.message(Command("update_account"))
 async def update_account(message: Message, state: FSMContext):
     token_key = await token_key_if_exists(message)
@@ -112,8 +119,10 @@ async def update_account(message: Message, state: FSMContext):
 
 @router.message(UpdateAccountState.account_id_update)
 async def update_account_name(message: Message, state: FSMContext):
-    message_text = message.text.strip()
-    await state.update_data(account_id_update=message_text)
+    category_id = await get_id_if_valid(message)
+    if not category_id:
+        return
+    await state.update_data(account_id_update=category_id)
     text = create_message_w_skip(messages.ENTER_ACCOUNT_NAME)
     await message.answer(text, reply_markup=skip_and_cancel_keyboard)
     await state.set_state(UpdateAccountState.account_name_update)

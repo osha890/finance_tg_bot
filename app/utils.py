@@ -10,6 +10,8 @@ from finance_tg_bot import messages
 from finance_tg_bot.database.crud import get_token
 from finance_tg_bot.database.db_settings import get_db
 
+from .keyboards.common_keyboards import TypeKBBs, cancel_keyboard
+
 
 async def token_key_if_exists(message: Message):
     user_id = message.from_user.id
@@ -39,9 +41,9 @@ def handle_api_errors():
 
 def get_type(operation_type):
     if operation_type == 'income':
-        result = messages.INCOMES
+        result = TypeKBBs.income
     elif operation_type == 'expense':
-        result = messages.EXPENSES
+        result = TypeKBBs.expense
     else:
         result = messages.UNDEFINED_TYPE
     return result
@@ -151,3 +153,14 @@ def create_message_w_skip(message_text):
         messages.SKIP_MESSAGE,
         sep='\n'
     )
+
+async def ask_for_id(message: Message):
+    await message.answer(messages.ENTER_ID, reply_markup=cancel_keyboard)
+
+async def get_id_if_valid(message: Message):
+    try:
+        return int(message.text.strip())
+    except ValueError:
+        await message.answer(messages.WRONG_VALUE)
+        await ask_for_id(message)
+        return
