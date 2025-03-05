@@ -52,6 +52,7 @@ class TypeKBBs:
     income = "Доходы"
     all_types = "Все"
 
+
 types_optional_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text=TypeKBBs.expense), KeyboardButton(text=TypeKBBs.income)],
@@ -68,6 +69,7 @@ types_keyboard = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
 
 # ===================================================
 
@@ -133,19 +135,56 @@ category_keyboard = ReplyKeyboardMarkup(
 # ===================================================
 
 class OperationKBBs:
-    get_operations = "Показать операции"
-    get_recent_operation = "Показать недавние операции"
+    get_expenses_today = "Расходы сегодня"
+    get_expenses_yesterday = "Расходы вчера"
+    get_expenses_day_before_yesterday = "Расходы позавчера"
+    get_incomes_today = "Доходы сегодня"
+    get_incomes_yesterday = "Доходы вчера"
+    get_incomes_day_before_yesterday = "Доходы позавчера"
     create_operation = "Добавить операцию"
+    other_operation_actions = "Другие действия с операциями"
+    get_recent_operation = "Показать недавние операции"
     delete_operation = "Удалить операцию"
     update_operation = "Изменить операцию"
+    filter_operations = "Фильтр операций"
+    main_operation_actions = "Основные действия с операциями"
+
 
 operation_keyboard = ReplyKeyboardMarkup(
+    # keyboard=[
+    #     [KeyboardButton(text=OperationKBBs.get_expenses_today),
+    #      KeyboardButton(text=OperationKBBs.get_expenses_yesterday),
+    #      KeyboardButton(text=OperationKBBs.get_expenses_day_before_yesterday)],
+    #     [KeyboardButton(text=OperationKBBs.get_incomes_today),
+    #      KeyboardButton(text=OperationKBBs.get_incomes_yesterday),
+    #      KeyboardButton(text=OperationKBBs.get_incomes_day_before_yesterday)],
+    #     [KeyboardButton(text=OperationKBBs.get_recent_operation)],
+    #     [KeyboardButton(text=OperationKBBs.create_operation),
+    #      KeyboardButton(text=OperationKBBs.delete_operation)],
+    #     [KeyboardButton(text=OperationKBBs.update_operation),
+    #      KeyboardButton(text=OperationKBBs.filter_operations)],
+    #     [KeyboardButton(text=get_back)],
+    # ]
     keyboard=[
-        [KeyboardButton(text=OperationKBBs.get_operations)],
-        [KeyboardButton(text=OperationKBBs.get_recent_operation)],
+        [KeyboardButton(text=OperationKBBs.get_expenses_today),
+         KeyboardButton(text=OperationKBBs.get_incomes_today)],
+        [KeyboardButton(text=OperationKBBs.get_expenses_yesterday),
+         KeyboardButton(text=OperationKBBs.get_incomes_yesterday)],
+        [KeyboardButton(text=OperationKBBs.get_expenses_day_before_yesterday),
+         KeyboardButton(text=OperationKBBs.get_incomes_day_before_yesterday)],
         [KeyboardButton(text=OperationKBBs.create_operation)],
-        [KeyboardButton(text=OperationKBBs.delete_operation)],
-        [KeyboardButton(text=OperationKBBs.update_operation)],
+        [KeyboardButton(text=OperationKBBs.other_operation_actions)],
         [KeyboardButton(text=get_back)],
-    ]
+    ],
+    resize_keyboard=True
+)
+
+operation_keyboard_2 = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text=OperationKBBs.get_recent_operation), KeyboardButton(text=OperationKBBs.filter_operations)],
+        [KeyboardButton(text=OperationKBBs.update_operation), KeyboardButton(text=OperationKBBs.delete_operation)],
+        [KeyboardButton(text=OperationKBBs.main_operation_actions)],
+        [KeyboardButton(text=get_back)],
+    ],
+    resize_keyboard=True
 )

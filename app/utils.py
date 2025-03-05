@@ -108,7 +108,7 @@ async def make_answer(response, item_class, messages_item):
             answer_text = "\n".join(
                 [get_str_item(item, item_class) for item in items]
             )
-        elif type(response_data) == dict and "operations" in response_data:
+        elif type(response_data) == dict and "operations" in response_data and len(response_data.get("operations")) > 0:
             items = response_data.get("operations")
             answer_text = "\n".join(
                 [get_str_item(item, item_class) for item in items]
@@ -147,15 +147,17 @@ async def make_answer(response, item_class, messages_item):
 
 
 def create_message_w_skip(message_text):
-    return  markdown.text(
+    return markdown.text(
         message_text,
         '\n',
         messages.SKIP_MESSAGE,
         sep='\n'
     )
 
+
 async def ask_for_id(message: Message):
     await message.answer(messages.ENTER_ID, reply_markup=cancel_keyboard)
+
 
 async def get_id_if_valid(message: Message):
     try:

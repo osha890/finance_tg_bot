@@ -35,6 +35,7 @@ async def start_cmd(message: Message):
         reply_markup=start_keyboard
     )
 
+
 @router.message(F.text == help_request)
 @router.message(Command("help"))
 async def start_cmd(message: Message):
@@ -42,6 +43,7 @@ async def start_cmd(message: Message):
         markdown.text(messages.HELP_MESSAGE),
         reply_markup=start_keyboard
     )
+
 
 @router.message(F.text == get_back)
 @router.message(F.text == StartKBBs.get_started)
@@ -66,6 +68,7 @@ async def work_w_categories(message: Message):
         message.text,
         reply_markup=category_keyboard,
     )
+
 
 @router.message(F.text == ChoseActionKBBs.operations)
 async def work_w_operations(message: Message):

@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from pprint import pprint
 from aiogram import Router, F
 from aiogram.filters import Command
@@ -36,6 +37,7 @@ from ...keyboards.common_keyboards import (
     cancel_keyboard,
     skip_and_cancel_keyboard,
     operation_keyboard,
+    operation_keyboard_2,
     types_optional_keyboard,
     types_keyboard,
 )
@@ -45,7 +47,7 @@ router = Router()
 
 # ======== GET OPERATIONS ===============================================================================
 
-@router.message(F.text == OperationKBBs.get_operations)
+@router.message(F.text == OperationKBBs.filter_operations)
 @router.message(Command("operations"))
 async def list_operations(message: Message, state: FSMContext):
     token_key = await token_key_if_exists(message)
@@ -461,9 +463,75 @@ async def recent_operations_count(message: Message, state: FSMContext):
     if operation_type:
         json_data["type"] = operation_type.lower()
 
-
     response = await get_recent_operations_api(token_key, json_data)
     answer_text = await make_answer(response, "operation", messages.MESSAGES_OPERATION)
     await message.answer(answer_text, reply_markup=operation_keyboard)
 
     await state.clear()
+
+
+# ======== TYPE/DAY OPERATIONS ===============================================================================
+
+async def get_operations_by_type_date(message, operation_type, date):
+    token_key = await token_key_if_exists(message)
+    if token_key:
+        params = {
+            "type": operation_type,
+            "date": date
+        }
+        response = await list_operations_api(token_key, params)
+        answer_text = await make_answer(response, "operation", messages.MESSAGES_OPERATION)
+        await message.answer(answer_text, reply_markup=operation_keyboard)
+
+
+@router.message(F.text == OperationKBBs.get_expenses_today)
+async def get_expenses_today(message: Message):
+    today = datetime.today().isoformat()
+    await get_operations_by_type_date(message, "expense", today)
+
+
+@router.message(F.text == OperationKBBs.get_expenses_yesterday)
+async def get_expenses_yesterday(message: Message):
+    yesterday = (datetime.today() - timedelta(days=1)).isoformat()
+    await get_operations_by_type_date(message, "expense", yesterday)
+
+
+@router.message(F.text == OperationKBBs.get_expenses_day_before_yesterday)
+async def get_expenses_day_before_yesterday(message: Message):
+    day_before_yesterday = (datetime.today() - timedelta(days=2)).isoformat()
+    await get_operations_by_type_date(message, "expense", day_before_yesterday)
+
+
+@router.message(F.text == OperationKBBs.get_incomes_today)
+async def get_incomes_today(message: Message):
+    today = datetime.today().isoformat()
+    await get_operations_by_type_date(message, "income", today)
+
+
+@router.message(F.text == OperationKBBs.get_incomes_yesterday)
+async def get_incomes_yesterday(message: Message):
+    yesterday = (datetime.today() - timedelta(days=1)).isoformat()
+    await get_operations_by_type_date(message, "income", yesterday)
+
+
+@router.message(F.text == OperationKBBs.get_incomes_day_before_yesterday)
+async def get_incomes_day_before_yesterday(message: Message):
+    day_before_yesterday = (datetime.today() - timedelta(days=2)).isoformat()
+    await get_operations_by_type_date(message, "income", day_before_yesterday)
+
+
+# ======== SWITCH KEYBOARD ===============================================================================
+
+@router.message(F.text == OperationKBBs.other_operation_actions)
+async def switch_kb_to_other_operation_actions(message: Message):
+    await message.answer(
+        message.text,
+        reply_markup=operation_keyboard_2
+    )
+
+@router.message(F.text == OperationKBBs.main_operation_actions)
+async def switch_kb_to_main_operation_actions(message: Message):
+    await message.answer(
+        message.text,
+        reply_markup=operation_keyboard
+    )
