@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardMarkup
+from aiogram.types import Message
 from aiogram.utils import markdown
 
 import messages
@@ -41,8 +41,8 @@ async def make_answer_register(response, user_id):
     if response.status == 201:
         token_key = data.get("token")
 
-        with get_db() as db:
-            save_token(db, user_id, token_key)
+        async with get_db() as db:
+            await save_token(db, user_id, token_key)
 
         answer_text = (
             markdown.text(
@@ -76,16 +76,16 @@ async def set_token_cmd(message: Message, state: FSMContext):
 async def set_token(message: Message, state: FSMContext):
     token_key = message.text.strip()
     user_id = message.from_user.id
-    with get_db() as db:
-        save_token(db, user_id, token_key)
+    async with get_db() as db:
+        await save_token(db, user_id, token_key)
     await message.answer(**get_answer_with_chose_action(messages.TOKEN_SAVED))
     await state.clear()
 
 
 async def get_token_or_notice(message: Message):
     user_id = message.from_user.id
-    with get_db() as db:
-        token = get_token(db, user_id)
+    async with get_db() as db:
+        token = await get_token(db, user_id)
     if token:
         text = markdown.text(
             messages.TOKEN_ANSWER.format(token=token.key),
@@ -117,8 +117,8 @@ async def token_cmd(message: Message):
     else:
         key = args[1].strip()
 
-        with get_db() as db:
-            save_token(db, user_id, key)
+        async with get_db() as db:
+            await save_token(db, user_id, key)
 
         await message.answer(**get_answer_with_chose_action(messages.TOKEN_SAVED))
 
