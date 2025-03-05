@@ -128,7 +128,7 @@ async def delete_category(message: Message, state: FSMContext):
     token_key = await token_key_if_exists(message)
     if token_key:
         await state.update_data(token_key=token_key)
-        await ask_for_id(message)
+        await message.answer(messages.ENTER_CATEGORY_ID, reply_markup=cancel_keyboard)
         await state.set_state(DeleteCategoryState.category_id_delete)
 
 
@@ -156,7 +156,7 @@ async def update_category(message: Message, state: FSMContext):
     token_key = await token_key_if_exists(message)
     if token_key:
         await state.update_data(token_key=token_key)
-        await ask_for_id(message)
+        await message.answer(messages.ENTER_CATEGORY_ID, reply_markup=cancel_keyboard)
         await state.set_state(UpdateCategoryState.category_id_update)
 
 

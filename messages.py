@@ -1,7 +1,30 @@
 START_MESSAGE = "Привет! Я бот для ведения личной бухгалтерии."
 BEGIN_MESSAGE = "Для начала работы добавьте свой токен или зарегистрируйтесь."
 
-HELP_MESSAGE = """help message"""
+HELP_MESSAGE = """<b>Начало работы:</b>
+/token - показать токен
+/token abc123 - добавить токен
+/register - зарегистрироваться
+
+<b>Операции:</b>
+/operations - показать операции (фильтр)
+/recent_operations - показать недавние операции
+/create_operation - добавить операцию
+/delete_operation - удалить операцию
+/update_operation - изменить операцию
+
+<b>Счета:</b>
+/accounts - показать счета
+/create_account - добавить счет
+/delete_account - удалить счет
+/update_account - изменить счет
+
+<b>Категории:</b>
+/categories - показать категории
+/create_category - добавить категорию
+/delete_category - удалить категорию
+/update_category - изменить категорию
+"""
 
 TOKEN_ADD_HOW_TO = """Чтобы добавить или изменить токен, используйте команду /token с аргументом.
 Например: /token 2uj3tg14fwq124we3fcf23"""
