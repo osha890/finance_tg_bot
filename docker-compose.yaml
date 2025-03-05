@@ -1,0 +1,30 @@
+version: '4.38'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_bot
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  bot:
+    build: .
+    container_name: finance_tg_bot
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      BOT_TOKEN: ${BOT_TOKEN}
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:
