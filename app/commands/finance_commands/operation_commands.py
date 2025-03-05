@@ -6,8 +6,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.utils import markdown
 
-from finance_tg_bot import messages
-from finance_tg_bot.app.utils import (
+import messages
+from ...utils import (
     token_key_if_exists,
     make_answer,
     get_iso_date,

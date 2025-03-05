@@ -1,11 +1,11 @@
 from aiogram import Router, F
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardMarkup
+from aiogram.types import Message
 from aiogram.utils import markdown
 
-from finance_tg_bot import messages
-from finance_tg_bot.app.keyboards.common_keyboards import (
+import messages
+from ..keyboards.common_keyboards import (
     cancel,
     get_back,
     help_request,

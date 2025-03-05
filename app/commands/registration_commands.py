@@ -3,9 +3,10 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardMarkup
 from aiogram.utils import markdown
-from finance_tg_bot import messages
-from finance_tg_bot.database.db_settings import get_db
-from finance_tg_bot.database.crud import save_token, get_token
+
+import messages
+from database.db_settings import get_db
+from database.crud import save_token, get_token
 
 from ..keyboards.common_keyboards import (
     StartKBBs,

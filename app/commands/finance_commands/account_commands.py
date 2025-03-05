@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from finance_tg_bot import messages
+import messages
 
 from ...utils import token_key_if_exists, make_answer, create_message_w_skip, get_id_if_valid
 from ...api_handlers.account_api import (

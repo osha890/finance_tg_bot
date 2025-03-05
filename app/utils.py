@@ -6,9 +6,9 @@ from datetime import datetime
 from aiogram.types import Message
 from aiogram.utils import markdown
 
-from finance_tg_bot import messages
-from finance_tg_bot.database.crud import get_token
-from finance_tg_bot.database.db_settings import get_db
+import messages
+from database.crud import get_token
+from database.db_settings import get_db
 
 from .keyboards.common_keyboards import TypeKBBs, cancel_keyboard
 

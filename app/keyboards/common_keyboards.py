@@ -1,6 +1,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-from finance_tg_bot import messages
+import messages
 
 get_back = "К списку действий"
 cancel = "Отмена"

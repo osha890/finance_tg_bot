@@ -1,6 +1,6 @@
-from finance_tg_bot.app.utils import handle_api_errors, get_auth_header
-from finance_tg_bot.config import API_BASE_URL
-from finance_tg_bot.session import get_session
+from ..utils import handle_api_errors, get_auth_header
+from config import API_BASE_URL
+from session import get_session
 
 operations_url = f"{API_BASE_URL}/operations/"
 
