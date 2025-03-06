@@ -1,30 +1,58 @@
-version: '4.38'
-
 services:
   db:
     image: postgres:16-alpine
-    container_name: postgres_bot
+    container_name: api_db
     restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env.api
+    volumes:
+      - postgres_data_api:/var/lib/postgresql/data
     ports:
       - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
-  bot:
-    build: .
-    container_name: finance_tg_bot
+
+  db_bot:
+    image: postgres:16-alpine
+    container_name: bot_db
+    restart: always
+#    env_file:
+#      - .env.bot
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data_bot:/var/lib/postgresql/data
+
+
+  api:
+    image: finance_api:latest
+    container_name: finance_api_backend
     restart: always
     depends_on:
       - db
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      BOT_TOKEN: ${BOT_TOKEN}
+    env_file:
+      - .env.api
+#    volumes:
+#      - .:/api_workdir
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "ls -l && python manage.py migrate &&
+                 python manage.py runserver 0.0.0.0:8000"
+
+
+  bot:
+    image: finance_bot:latest
+    container_name: finance_tg_bot
+    restart: always
+    depends_on:
+      - db_bot
+      - api
+    env_file:
+      - .env.bot
     volumes:
-      - .:/app
+      - .:/bot_workdir
+
 
 volumes:
-  postgres_data:
+  postgres_data_api:
+  postgres_data_bot:
