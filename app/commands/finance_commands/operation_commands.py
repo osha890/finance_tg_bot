@@ -68,7 +68,7 @@ async def ask_for_date(message: Message):
 
 
 @router.message(GetOperationsState.operation_type_get)
-async def create_operation_type(message: Message, state: FSMContext):
+async def list_operations_type(message: Message, state: FSMContext):
     message_text = message.text.strip().lower()
     if message_text == TypeKBBs.income.lower():
         await state.update_data(operation_type_get="income")
@@ -81,7 +81,7 @@ async def create_operation_type(message: Message, state: FSMContext):
 
 
 @router.message(GetOperationsState.operation_date_get)
-async def create_operation_date(message: Message, state: FSMContext):
+async def list_operations_date(message: Message, state: FSMContext):
     message_text = message.text.strip()
     if message_text.lower() == messages.SKIP.lower():
         text = markdown.text(
@@ -110,7 +110,7 @@ async def create_operation_date(message: Message, state: FSMContext):
 
 
 @router.message(GetOperationsState.operation_date_after_get)
-async def create_operation_date_after(message: Message, state: FSMContext):
+async def list_operations_date_after(message: Message, state: FSMContext):
     iso_date = get_iso_date(message.text.strip())
     if iso_date is not None:
         await state.update_data(operation_date_after_get=iso_date)
@@ -125,7 +125,7 @@ async def create_operation_date_after(message: Message, state: FSMContext):
 
 
 @router.message(GetOperationsState.operation_date_before_get)
-async def create_operation_date_before(message: Message, state: FSMContext):
+async def list_operations_date_before(message: Message, state: FSMContext):
     iso_date = get_iso_date(message.text.strip())
     if iso_date is not None:
         await state.update_data(operation_date_before_get=iso_date)
@@ -140,7 +140,7 @@ async def create_operation_date_before(message: Message, state: FSMContext):
 
 
 @router.message(GetOperationsState.operation_account_get)
-async def create_operation_account(message: Message, state: FSMContext):
+async def list_operations_account(message: Message, state: FSMContext):
     message_text = message.text.strip()
     if message_text.lower() != messages.SKIP.lower():
         await state.update_data(operation_account_get=message_text)
@@ -155,7 +155,7 @@ async def create_operation_account(message: Message, state: FSMContext):
 
 
 @router.message(GetOperationsState.operation_category_get)
-async def create_operation_account(message: Message, state: FSMContext):
+async def list_operations_account(message: Message, state: FSMContext):
     state_data = await state.get_data()
     message_text = message.text.strip()
     token_key = state_data.get("token_key")
