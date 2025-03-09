@@ -2,18 +2,18 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 import messages
 
-get_back = "К списку действий"
-cancel = "Отмена"
-help_request = "Помощь"
+get_back = "🔙 К списку действий"
+cancel = "⭕ Отмена"
+help_request = "ℹ️ Помощь"
 
 
 # ===================================================
 
 class StartKBBs:
-    enter_token = "Добавить токен"
-    my_token = "Мой токен"
-    register = "Зарегистрироваться"
-    get_started = "Начать работу"
+    enter_token = "🆕 Добавить токен"
+    my_token = "🪪 Мой токен"
+    register = "📝 Зарегистрироваться"
+    get_started = "✏️ Начать работу"
 
 
 start_keyboard = ReplyKeyboardMarkup(
@@ -48,9 +48,9 @@ skip_and_cancel_keyboard = ReplyKeyboardMarkup(
 # ===================================================
 
 class TypeKBBs:
-    expense = "Расходы"
-    income = "Доходы"
-    all_types = "Все"
+    expense = "📉 Расходы"
+    income = "📈 Доходы"
+    all_types = "📊 Все"
 
 
 types_optional_keyboard = ReplyKeyboardMarkup(
@@ -74,9 +74,9 @@ types_keyboard = ReplyKeyboardMarkup(
 # ===================================================
 
 class ChoseActionKBBs:
-    operations = "Операции"
-    accounts = "Счета"
-    categories = "Категории"
+    operations = "💸 Операции"
+    accounts = "💳 Счета"
+    categories = "📁 Категории"
 
 
 chose_action_keyboard = ReplyKeyboardMarkup(
@@ -93,10 +93,10 @@ chose_action_keyboard = ReplyKeyboardMarkup(
 # ===================================================
 
 class AccountKBBs:
-    get_accounts = "Показать счета"
-    create_account = "Добавить счет"
-    delete_account = "Удалить счет"
-    update_account = "Изменить счет"
+    get_accounts = "📋 Показать счета"
+    create_account = "🟢 Добавить счет"
+    delete_account = "❌ Удалить счет"
+    update_account = "🟦 Изменить счет"
 
 
 account_keyboard = ReplyKeyboardMarkup(
@@ -114,10 +114,10 @@ account_keyboard = ReplyKeyboardMarkup(
 # ===================================================
 
 class CategoryKBBs:
-    get_categories = "Показать категории"
-    create_category = "Добавить категорию"
-    delete_category = "Удалить категорию"
-    update_category = "Изменить категорию"
+    get_categories = "📋 Показать категории"
+    create_category = "🟢 Добавить категорию"
+    delete_category = "❌ Удалить категорию"
+    update_category = "🟦 Изменить категорию"
 
 
 category_keyboard = ReplyKeyboardMarkup(
@@ -135,19 +135,19 @@ category_keyboard = ReplyKeyboardMarkup(
 # ===================================================
 
 class OperationKBBs:
-    get_expenses_today = "Расходы сегодня"
-    get_expenses_yesterday = "Расходы вчера"
-    get_expenses_day_before_yesterday = "Расходы позавчера"
-    get_incomes_today = "Доходы сегодня"
-    get_incomes_yesterday = "Доходы вчера"
-    get_incomes_day_before_yesterday = "Доходы позавчера"
-    create_operation = "Добавить операцию"
-    other_operation_actions = "Другие действия с операциями"
-    get_recent_operation = "Показать недавние операции"
-    delete_operation = "Удалить операцию"
-    update_operation = "Изменить операцию"
-    filter_operations = "Фильтр операций"
-    main_operation_actions = "Основные действия с операциями"
+    get_expenses_today = "📉 Расходы сегодня"
+    get_expenses_yesterday = "📉 Расходы вчера"
+    get_expenses_day_before_yesterday = "📉 Расходы позавчера"
+    get_incomes_today = "📈 Доходы сегодня"
+    get_incomes_yesterday = "📈 Доходы вчера"
+    get_incomes_day_before_yesterday = "📈 Доходы позавчера"
+    create_operation = "🟢 Добавить операцию"
+    other_operation_actions = "🔄 Другие действия с операциями"
+    get_recent_operation = "📋 Показать недавние операции"
+    delete_operation = "❌ Удалить операцию"
+    update_operation = "🟦 Изменить операцию"
+    filter_operations = "🟣 Фильтр операций"
+    main_operation_actions = "🔄 Основные действия с операциями"
 
 
 operation_keyboard = ReplyKeyboardMarkup(

@@ -127,7 +127,7 @@ MESSAGES_OPERATION = {
 }
 
 API_CONNECTION_ERROR = "Отсутствует соединение с API. Попробуйте позже"
-SKIP = "Далее"
+SKIP = "➡️ Далее"
 SKIP_MESSAGE = f"Если хотите пропустить этот шаг, отправьте '{SKIP}'"
 ALL_TYPES_MESSAGE = "Если хотите получить все типы, отправьте '{types}'"
 
