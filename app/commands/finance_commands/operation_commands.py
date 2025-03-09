@@ -159,19 +159,27 @@ async def list_operations_account(message: Message, state: FSMContext):
     state_data = await state.get_data()
     message_text = message.text.strip()
     token_key = state_data.get("token_key")
-    params = {}
-    if state_data.get("operation_type_get") is not None:
-        params["type"] = state_data.get("operation_type_get")
-    if state_data.get("operation_date_get") is not None:
-        params["date"] = state_data.get("operation_date_get")
-    if state_data.get("operation_date_after_get") is not None:
-        params["date_after"] = state_data.get("operation_date_after_get")
-    if state_data.get("operation_date_before_get") is not None:
-        params["date_before"] = state_data.get("operation_date_before_get")
-    if state_data.get("operation_account_get") is not None:
-        params["account"] = state_data.get("operation_account_get")
+
+    # Соответствие ключей в state_data и параметров API
+    param_keys = {
+        "operation_type_get": "type",
+        "operation_date_get": "date",
+        "operation_date_after_get": "date_after",
+        "operation_date_before_get": "date_before",
+        "operation_account_get": "account",
+    }
+
+    # Формируем параметры
+    params = {
+        api_key: state_data[state_key]
+        for state_key, api_key in param_keys.items()
+        if state_data.get(state_key) is not None
+    }
+
+    # Обрабатываем категорию отдельно
     if message_text.lower() != messages.SKIP.lower():
         params["category"] = message_text
+
     pprint(params)
     response = await list_operations_api(token_key, params)
     answer_text = await make_answer(response, "operation", messages.MESSAGES_OPERATION)
